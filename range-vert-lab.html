@@ -75,7 +75,7 @@ const S = {            // stats() results, RAW (pre-deamp), one per bucket
   prevIsNaN: false, nextIsNaN: false
 };
 const V = {            // view
-  focus: 'curr', lockAspect: true, showConstruction: true,
+  focus: 'curr', lockAspect: true, showConstruction: true, showGhosts: true,
   showQuads: true, showSamples: true, animate: false, animSpeed: 1
 };
 
@@ -125,9 +125,14 @@ function vertex (id, avgPrevRaw, avgCurrRaw, avgNextRaw, sdevRaw, prevNaN, nextN
   const dx = join[0] * 0.5 * U.thickness;
   const dy = join[1] * 0.5 * U.thickness;
 
+  // the two vectors the blend branch interpolates between (range-vert.glsl:221).
+  // both are computed by the shader before the branch, so they exist in every regime.
+  const candMiter = mul(bisec, bisecLen);     // A -- t = 0
+  const candVert  = mul(vert,  maxVertLen);   // B -- t = 1
+
   return {id, avgCurr, avgPrev, avgNext, sdev, normalLeft, normalRight, bisec,
           bisecLen, vertLeftLen, vertRightLen, minVertLen, maxVertLen, vertSdev,
-          join, regime, t,
+          join, regime, t, candMiter, candVert,
           center:[cx,cy], plus:[cx+dx, cy+dy], minus:[cx-dx, cy-dy],
           quadHeight: Math.abs(join[1])*U.thickness,
           edgeSpanX: Math.abs(join[0])*U.thickness};
@@ -190,6 +195,33 @@ function draw () {
     quad(curr, next, COL[curr.regime]);
   }
 
+  // blend candidates at the focused vertex.
+  //   join = lerp(A, B, t)   with   A = bisec*bisecLen,  B = vert*maxVertLen
+  // lerp is linear, so P+ slides along a straight track from A's P+ to B's P+.
+  // Drawing that track makes t geometric instead of a number.
+  if (V.showGhosts) {
+    const v = ({prev,curr,next})[V.focus];
+    const ghost = (j, col, lab, dash, labOff) => {
+      const p = [v.center[0] + j[0]*0.5*U.thickness, v.center[1] + j[1]*0.5*U.thickness];
+      const m = [v.center[0] - j[0]*0.5*U.thickness, v.center[1] - j[1]*0.5*U.thickness];
+      SVG.appendChild(el('line',{x1:X(p[0]),y1:Y(p[1]),x2:X(m[0]),y2:Y(m[1]),
+        stroke:col,'stroke-width':1.5,'stroke-dasharray':dash,'stroke-opacity':.8}));
+      for (const q of [p,m])
+        SVG.appendChild(el('circle',{cx:X(q[0]),cy:Y(q[1]),r:3,fill:'none',
+          stroke:col,'stroke-width':1.2,'stroke-opacity':.8}));
+      const t = el('text',{x:X(p[0])+6,y:Y(p[1])+labOff,fill:col,'font-size':10,
+        'font-family':'monospace','font-weight':600});
+      t.textContent = lab; SVG.appendChild(t);
+      return {p,m};
+    };
+    const A = ghost(v.candMiter,'#4a9eff','A = bisec * bisecLen','6 4',-6);
+    const B = ghost(v.candVert, '#3ecf8e','B = vert * maxVertLen','2 3',10);
+    // the t track: where the actual vertex can slide
+    for (const [a,b] of [[A.p,B.p],[A.m,B.m]])
+      SVG.appendChild(el('line',{x1:X(a[0]),y1:Y(a[1]),x2:X(b[0]),y2:Y(b[1]),
+        stroke:'#7a7a92','stroke-width':1,'stroke-dasharray':'1 3','stroke-opacity':.9}));
+  }
+
   // join segments (the two vertices of each id)
   for (const v of all) {
     const focused = v === ({prev,curr,next})[V.focus];
@@ -245,6 +277,9 @@ function readout (v) {
     row('blend window', f(v.maxVertLen - v.minVertLen, 4) +
         ((v.maxVertLen - v.minVertLen) < 1e-9 ? '  &larr; ZERO' : '')) +
     row('blend t', v.t==null?'&mdash;':f(v.t,3)) +
+    row('|A| miter', f(Math.hypot(v.candMiter[0],v.candMiter[1]),3)) +
+    row('|B| vertical', f(Math.hypot(v.candVert[0],v.candVert[1]),3)) +
+    row('|join| actual', f(Math.hypot(v.join[0],v.join[1]),3)) +
     row('join.x', f(v.join[0])) + row('join.y', f(v.join[1])) +
     row('quad height px', f(v.quadHeight,2)) + row('edge lean px', f(v.edgeSpanX,2));
 
@@ -320,6 +355,7 @@ fv.addBinding(V,'focus',{options:{prev:'prev',curr:'curr',next:'next'}});
 fv.addBinding(V,'lockAspect');
 fv.addBinding(V,'showQuads');
 fv.addBinding(V,'showConstruction');
+fv.addBinding(V,'showGhosts',{label:'blend candidates'});
 fv.addBinding(V,'animate',{label:'sweep sdevCurr'});
 fv.addBinding(V,'animSpeed',{min:0.1,max:4,step:0.1});
 
