@@ -1,0 +1,1220 @@
+<title>Range Shader Vector Plates</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&display=swap">
+
+<style>
+:root{
+  --paper:#E7EBEC; --sheet:#F8FAFA; --sheet-2:#F0F4F4; --well:#DEE5E6;
+  --ink:#16232B; --ink-2:#485A64; --ink-3:#7A8A93;
+  --rule:#C6D0D3; --rule-2:#DAE1E3; --grid:#D2DBDD;
+  --blue:#1B5C9E; --teal:#0A7361; --amber:#9E6005; --plum:#8A3663;
+  --shadow:0 1px 0 rgba(22,35,43,.05);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0B1216; --sheet:#111B20; --sheet-2:#16222A; --well:#0D171C;
+    --ink:#DBE5E7; --ink-2:#9DAFB6; --ink-3:#6F838B;
+    --rule:#28383F; --rule-2:#1E2D35; --grid:#20313A;
+    --blue:#77B1EA; --teal:#3FC9B1; --amber:#F2B64E; --plum:#E093BE;
+    --shadow:0 1px 0 rgba(0,0,0,.3);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0B1216; --sheet:#111B20; --sheet-2:#16222A; --well:#0D171C;
+  --ink:#DBE5E7; --ink-2:#9DAFB6; --ink-3:#6F838B;
+  --rule:#28383F; --rule-2:#1E2D35; --grid:#20313A;
+  --blue:#77B1EA; --teal:#3FC9B1; --amber:#F2B64E; --plum:#E093BE;
+  --shadow:0 1px 0 rgba(0,0,0,.3);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Serif",Georgia,serif;
+  font-size:15.5px; line-height:1.62;
+  margin:0; padding-block:34px 60px; padding-left:20px; padding-right:20px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1160px; margin:0 auto; display:flex; flex-direction:column; gap:34px}
+
+/* ---------- masthead ---------- */
+.mast{display:flex; flex-direction:column; gap:14px; padding-bottom:26px; border-bottom:2px solid var(--ink)}
+.eyebrow{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; font-weight:500;
+  letter-spacing:.18em; text-transform:uppercase; color:var(--ink-3);
+}
+h1{
+  font-family:"IBM Plex Sans Condensed",system-ui,sans-serif; font-weight:700;
+  font-size:clamp(30px,5.6vw,52px); line-height:1.03; letter-spacing:-.012em;
+  margin:0; text-wrap:balance; max-width:20ch;
+}
+.standfirst{margin:0; max-width:66ch; color:var(--ink-2); font-size:17px}
+.standfirst b{color:var(--ink); font-weight:500}
+
+.givens{
+  display:flex; flex-wrap:wrap; gap:0 26px; row-gap:8px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; color:var(--ink-2);
+  padding-top:4px;
+}
+.givens span b{color:var(--ink); font-weight:500}
+
+/* ---------- plates ---------- */
+.plate{
+  display:grid; grid-template-columns:minmax(0,330px) minmax(0,1fr);
+  gap:0 38px; align-items:start;
+  border-top:1px solid var(--rule); padding-top:22px;
+}
+@media (max-width:860px){ .plate{grid-template-columns:minmax(0,1fr); gap:20px} }
+
+.col-text{display:flex; flex-direction:column; gap:13px}
+.pnum{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; font-weight:600;
+  letter-spacing:.16em; color:var(--amber);
+}
+h2{
+  font-family:"IBM Plex Sans Condensed",system-ui,sans-serif; font-weight:600;
+  font-size:23px; line-height:1.14; letter-spacing:-.005em; margin:0; text-wrap:balance;
+}
+.col-text p{margin:0; color:var(--ink-2)}
+.col-text p b{color:var(--ink); font-weight:500}
+.col-text p i{color:var(--ink); font-style:italic}
+
+code, .code{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12.5px}
+p code{background:var(--sheet-2); padding:.06em .3em; border-radius:2px; color:var(--ink); font-size:12px}
+
+pre{
+  margin:0; background:var(--well); border-left:2px solid var(--rule);
+  padding:11px 13px; overflow-x:auto;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; line-height:1.62;
+  color:var(--ink-2); white-space:pre;
+}
+pre b{color:var(--ink); font-weight:500}
+pre .cm{color:var(--ink-3); font-style:italic}
+
+.note{
+  border-left:2px solid var(--amber); padding:2px 0 2px 13px;
+  font-size:14px; color:var(--ink-2);
+}
+.note b{color:var(--ink); font-weight:500}
+
+/* colour key inline chips */
+.chip{
+  display:inline-flex; align-items:baseline; gap:5px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; color:var(--ink-2);
+}
+.chip::before{content:""; width:11px; height:2.5px; background:currentColor; align-self:center}
+.chip.b{color:var(--blue)} .chip.t{color:var(--teal)} .chip.a{color:var(--amber)} .chip.p{color:var(--plum)}
+.chip.k{color:var(--ink)}
+.keys{display:flex; flex-wrap:wrap; gap:6px 18px; padding-top:2px}
+
+/* ---------- figure ---------- */
+.fig{
+  background:var(--sheet); border:1px solid var(--rule-2); box-shadow:var(--shadow);
+  padding:8px; overflow-x:auto;
+}
+.fig svg{display:block; width:100%; height:auto; min-width:440px}
+.figcap{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; color:var(--ink-3);
+  margin:8px 0 0; padding:0 2px; line-height:1.5;
+}
+.col-fig{display:flex; flex-direction:column}
+
+/* svg primitives */
+.v{stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round}
+.vh{fill:currentColor; stroke:none}
+.thin{stroke:currentColor; fill:none; stroke-width:1.2}
+.dash{stroke:currentColor; fill:none; stroke-width:1.2; stroke-dasharray:4 3.5}
+.dot3{stroke:currentColor; fill:none; stroke-width:1.2; stroke-dasharray:1.5 3; stroke-linecap:round}
+.grid{stroke:var(--grid); fill:none; stroke-width:1}
+.rul{stroke:var(--rule); fill:none; stroke-width:1}
+.pt{fill:currentColor; stroke:none}
+.ptr{fill:var(--sheet); stroke:currentColor; stroke-width:2}
+.lbl{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px;
+  fill:currentColor; stroke:none;
+}
+.lbl.sm{font-size:9.5px}
+.lbl.bg{font-size:12.5px; font-weight:500}
+.c-ink{color:var(--ink)} .c-ink2{color:var(--ink-2)} .c-ink3{color:var(--ink-3)}
+.c-blue{color:var(--blue)} .c-teal{color:var(--teal)} .c-amber{color:var(--amber)} .c-plum{color:var(--plum)}
+svg{color:var(--ink-2)}
+
+/* ---------- interactive ---------- */
+.ctl{
+  display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px;
+  background:var(--sheet-2); border:1px solid var(--rule-2); padding:11px 13px; margin-bottom:10px;
+}
+.ctl label{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); white-space:nowrap;
+}
+.ctl input[type=range]{flex:1 1 190px; min-width:150px; accent-color:var(--plum); height:22px}
+.ctl input[type=range]:focus-visible{outline:2px solid var(--amber); outline-offset:3px}
+.readout{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; color:var(--ink);
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+.readout em{color:var(--ink-3); font-style:normal}
+.mode{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; font-weight:600;
+  letter-spacing:.13em; text-transform:uppercase; padding:3px 9px; white-space:nowrap;
+  border:1px solid currentColor;
+}
+.mode.miter{color:var(--amber)} .mode.blend{color:var(--teal)} .mode.vert{color:var(--plum)}
+
+/* ---------- closing ---------- */
+.close{border-top:2px solid var(--ink); padding-top:24px; display:flex; flex-direction:column; gap:16px}
+.close h2{font-size:26px}
+.edges{display:grid; grid-template-columns:repeat(auto-fit,minmax(258px,1fr)); gap:22px 34px}
+.edge{display:flex; flex-direction:column; gap:6px}
+.edge h3{
+  font-family:"IBM Plex Sans Condensed",system-ui,sans-serif; font-weight:600; font-size:16px;
+  margin:0; color:var(--ink);
+}
+.edge p{margin:0; font-size:14.5px; color:var(--ink-2)}
+.edge .tag{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-3);
+}
+footer{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; color:var(--ink-3);
+  border-top:1px solid var(--rule); padding-top:14px; line-height:1.7;
+}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <div class="eyebrow">gl-waveform · shader/range-vert.glsl · vertex construction</div>
+  <h1>Range Shader Vector Plates</h1>
+  <p class="standfirst">Ten plates, attributes to <code>gl_Position</code>. Every vector in the range shader is built in one space and measured against one ruler — <b>half the line thickness</b>. Once you see that ruler, the three-way join branch stops being three cases and becomes one continuous curve.</p>
+  <div class="givens">
+    <span>fixed for every plate:</span>
+    <span>viewport <b>660 × 220 px</b></span>
+    <span>thickness <b>24 px</b></span>
+    <span>pxStep <b>85 px</b></span>
+    <span>avgPrev <b>0.22</b></span>
+    <span>avgCurr <b>0.72</b></span>
+    <span>avgNext <b>0.40</b></span>
+  </div>
+</header>
+
+<!-- 1 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 01</div>
+    <h2>Three attributes, four vertices, one column</h2>
+    <p>The vertex buffer is built once and never changes. For each <code>id</code> it pushes four vertices — and the source comment draws them as a zigzag strip:</p>
+<pre>x.push(i, <b>1</b>, <b>-1</b>,  i, <b>-1</b>, <b>-1</b>)
+x.push(i, <b>1</b>,  <b>1</b>,  i, <b>-1</b>,  <b>1</b>)
+<span class="cm">//    id  sign  side</span></pre>
+    <p><b>id</b> picks the time bucket — one column of the waveform. <b>sign</b> is ±1 and picks the top or bottom edge of the ribbon. <b>side</b> is ±1 and <i>does not move the vertex at all</i>: it only swings which neighbours land in the varyings <code>statsLeft</code>/<code>statsRight</code> for the fragment shader to antialias against.</p>
+    <div class="note">So position depends on <b>id</b> and <b>sign</b> only. The whole rest of this document is one question: given <code>id</code>, how far and in what direction does <code>sign</code> push?</div>
+  </div>
+  <div class="col-fig"><div class="fig" id="f1"></div>
+    <p class="figcap">Triangle-strip order. Both <code>side</code> values sit at the identical point — drawn split apart here only to be countable.</p>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 02</div>
+    <h2>One id becomes a mean and a spread</h2>
+    <p><code>offset = id * sampleStep</code> names the centre of a window <code>sampleStep</code> samples wide. The textures hold running sums of <i>x</i> and <i>x²</i>, so both moments are two texture reads and a subtract:</p>
+<pre><span class="cm">// s0, s1 = window end samples</span>
+float n   = offset1l - offset0l;
+float <b>avg</b> = (s1.y - s0.y) / n;
+float mx2 = (s1.z - s0.z) / n;
+<span class="cm">// σ(x)² = M(x²) − M(x)²</span>
+float <b>sdev</b> =
+  sqrt(abs(mx2 - avg*avg));</pre>
+    <p>That is the whole reason this shader differs from <code>line-vert.glsl</code>. The plain line shader plots one sample and hardcodes <code>sdev = 0</code>. This one plots an <b>aggregate</b>, and an aggregate has a width as well as a height.</p>
+    <div class="keys">
+      <span class="chip k">avg</span><span class="chip p">± 1 σ</span><span class="chip b">window</span>
+    </div>
+  </div>
+  <div class="col-fig"><div class="fig" id="f2"></div>
+    <p class="figcap">The <code>.w</code> channel carries a NaN flag; <code>−1</code> means “no data here” and drives the two end-cap branches in Plate 09.</p>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 03</div>
+    <h2>Five taps, then the skeleton</h2>
+    <p><code>stats()</code> is called five times — at <code>offset</code> and at ±1, ±2 <code>sampleStep</code>. <code>deamp</code> (really <code>reamp</code>) rescales each mean out of the amplitude range into <b>0…1</b>, which is the space everything from here on lives in:</p>
+<pre>return (v - amp.x) / (amp.y - amp.x);</pre>
+    <p>Then the vertex's home point, before any thickness is applied:</p>
+<pre>vec2 position = vec2(
+  pxStep * (id + <b>.5</b>) / viewport.z,
+  avgCurr
+);</pre>
+    <p>The <b>+.5</b> centres the vertex in its pixel column rather than on its left edge. Divide by <code>viewport.z</code> and x is 0…1 too. This polyline is the skeleton; the remaining plates only decide how to give it width.</p>
+  </div>
+  <div class="col-fig"><div class="fig" id="f3"></div>
+    <p class="figcap">Only the middle three points build the join. <code>prev2</code> and <code>next2</code> exist purely to fill varyings for the fragment shader.</p>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 04</div>
+    <h2>The rotation that is never written down</h2>
+    <p>A segment runs <code>d = (dx, dy)</code>. Its perpendicular is <code>(−dy, dx)</code>. The shader never forms <code>d</code> — it writes the rotated components straight out:</p>
+<pre>vec2 normalLeft = normalize(vec2(
+  <b>-(avgCurr - avgPrev)</b>,   <span class="cm">// −dy</span>
+  <b>pxStep / viewport.w</b>     <span class="cm">// +dx</span>
+));</pre>
+    <p>Both components are in the same unit — <i>fractions of viewport height</i> — so this is a true perpendicular in isotropic pixel space, not a stretched one.</p>
+    <div class="note">And here is your −90°…+90°: <code>pxStep</code> is always positive, so <b>n.y is always positive</b>. Every normal in this shader lives in the upper half-plane. Flat segment → straight up. Steep segment → nearly horizontal. It can never point down, because time never runs backwards.</div>
+  </div>
+  <div class="col-fig"><div class="fig" id="f4"></div>
+    <p class="figcap">Right: the reachable fan. The opening angle is set by <code>pxStep/viewport.w</code> versus the sample-to-sample jump.</p>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 05</div>
+    <h2>What a join actually has to satisfy</h2>
+    <p>Two segments meet at the vertex. Each one, given width, has an upper edge — its own centreline pushed out along its own normal by half the thickness. Those two edges cross at one point.</p>
+    <p>A join vector is <b>correct</b> when it lands on that crossing, and the condition for that is startlingly simple. Measured in half-thicknesses, the join must have <b>unit projection onto each normal</b>:</p>
+<pre>dot(join, normalLeft)  == 1
+dot(join, normalRight) == 1</pre>
+    <p>Not <i>length</i> 1 — <i>projection</i> 1. That single line explains every <code>1./dot(...)</code> in the file. Each one is solving this equation for a particular assumed direction.</p>
+    <div class="keys">
+      <span class="chip b">normalLeft</span><span class="chip t">normalRight</span><span class="chip ink">offset edges</span>
+    </div>
+  </div>
+  <div class="col-fig"><div class="fig" id="f5"></div>
+    <p class="figcap">The crossing ✕ is the target. Plates 06–09 are four different guesses at how to reach it — or at when to deliberately miss.</p>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 06</div>
+    <h2>Guess one: the bisector, and its price</h2>
+    <p>Add the two unit normals and renormalise — you get the angle bisector. Assume the join points that way, and solve <code>dot(join, nL) = 1</code>:</p>
+<pre>vec2 bisec =
+  normalize(normalLeft + normalRight);
+float <b>bisecLen</b> =
+  abs(1. / dot(normalLeft, bisec));
+join = bisec * bisecLen;</pre>
+    <p>Because the bisector sits at half the corner angle from each normal, <code>dot(nL, bisec) = cos(θ/2)</code> and so <b>bisecLen = 1/cos(θ/2)</b>. This is the textbook miter, and it is exactly what <code>line-vert.glsl</code> does — unconditionally, with no branch at all.</p>
+    <div class="note">It is also a trap. As the corner sharpens, θ → 180°, cos(θ/2) → 0, and the miter length runs to <b>infinity</b>. A loud transient in the audio does precisely this, and the line grows a spike taller than the plot.</div>
+  </div>
+  <div class="col-fig"><div class="fig" id="f6"></div>
+    <p class="figcap">Inset: 1/cos(θ/2). At this vertex θ ≈ 87°, so bisecLen ≈ 1.44 — mild. The asymptote is the problem the rest of the shader exists to dodge.</p>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 07</div>
+    <h2>The ruler: everything is half-thicknesses</h2>
+    <p>Look at how <code>join</code> is spent, five lines from the end:</p>
+<pre>position += sign * join
+   * <b>.5 * thickness</b> / viewport.zw;</pre>
+    <p><code>join</code> is <b>dimensionless</b>. A join of length 1 displaces exactly half a line thickness; <code>sign</code> = ±1 makes the two edges, so a unit join yields a line exactly <code>thickness</code> wide. That is the unit for every number in the branch.</p>
+    <p>Now guess two — travel <i>straight up</i> instead of along the normal, and solve the same equation. With <code>vert = (0,1)</code>:</p>
+<pre>float <b>vertLeftLen</b> =
+  abs(1. / dot(normalLeft,  vert));
+float <b>vertRightLen</b> =
+  abs(1. / dot(normalRight, vert));</pre>
+    <p>Since <code>dot(n, vert) = n.y</code>, this is <b>1/|n.y|</b> — the hypotenuse over the run. It answers: <i>how far up must I go to still sit on that edge?</i> Always ≥ 1, and it blows up as the segment goes vertical, just like the miter does.</p>
+  </div>
+  <div class="col-fig"><div class="fig" id="f7"></div>
+    <p class="figcap">Left: the ruler. Right: the vertical route costs <code>vertLen</code> where the perpendicular route costs 1.</p>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 08</div>
+    <h2>Putting σ on the same ruler</h2>
+    <p>The one conversion that makes the branch readable:</p>
+<pre>float <b>vertSdev</b> =
+  2. * sdev * viewport.w / thickness;</pre>
+    <p>Run it forward through the ruler. A vertical join of that length displaces</p>
+<pre>vertSdev * .5*thickness/viewport.w
+   ==  <b>sdev</b></pre>
+    <p>…exactly. With <code>sign</code> = ±1 the ribbon spans precisely <b>±1σ</b>. So <code>vertSdev</code> is not a fudge factor or a tuning constant — it is σ re-expressed in half-thicknesses, so that a data quantity can be compared against the geometric ones from Plate 07.</p>
+    <div class="note"><b>vertSdev &lt; 1</b> means the spread of the samples in this column is narrower than the line is thick — drawing it would be invisible. <b>vertSdev &gt; 1</b> means the signal genuinely needs more vertical room than the line already gives it.</div>
+  </div>
+  <div class="col-fig"><div class="fig" id="f8"></div>
+    <p class="figcap">The comment says “2σ covers 68%”. Read as ±1σ from the centre, which is what the code does, that is the usual 68%.</p>
+  </div>
+</section>
+
+<!-- 9 — interactive -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 09 · INTERACTIVE</div>
+    <h2>The branch is one continuous curve</h2>
+    <p>Three quantities, all in half-thicknesses: <code>vertSdev</code>, and the two gates <code>minVertLen</code> / <code>maxVertLen</code>. The branch is just where σ falls between them:</p>
+<pre>if (vertSdev &lt; <b>maxVertLen</b>) {
+  if (vertSdev &gt; <b>minVertLen</b>) {
+    float t = (vertSdev - minVertLen)
+        / (maxVertLen - minVertLen);
+    join = lerp(bisec*bisecLen,
+                vert*maxVertLen, t);
+  }
+  else join = bisec * bisecLen;
+}
+else join = vert * <b>vertSdev</b>;</pre>
+    <p>Drag σ and watch the join vectors. Below the first gate it is a pure miter and σ is invisible. Above the second it is pure vertical and geometry is discarded — the ribbon simply becomes the ±1σ envelope. Between them it rotates.</p>
+    <div class="note">Check the seams. At <code>t = 0</code> the lerp returns <code>bisec*bisecLen</code>; at <code>t = 1</code> it returns <code>vert*maxVertLen</code>, which is what the third branch gives at that instant. <b>The function is continuous.</b> The blend band is not a third mode — it is the hinge that stops the other two from popping.</div>
+    <p>Each vertex has its own gates, from its own two normals, so neighbours switch at different σ. That is why the ribbon flares unevenly.</p>
+  </div>
+  <div class="col-fig">
+    <div class="ctl">
+      <label for="sig">σ</label>
+      <input type="range" id="sig" min="0" max="0.15" step="0.0005" value="0.080">
+      <span class="readout" id="ro"></span>
+      <span class="mode" id="md"></span>
+    </div>
+    <div class="fig" id="f9"></div>
+    <p class="figcap">Number line is for the spotlight vertex ◆ only. Ribbon vertices are tinted by the branch each one takes. End vertices use the NaN caps — <code>join = normalRight</code> / <code>normalLeft</code>, one lone normal, no corner to solve.</p>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 10</div>
+    <h2>Spend it, shift it, project it</h2>
+<pre>position += sign * join
+   * .5*thickness / <b>viewport.zw</b>;
+
+position.x += passId * pxStep
+   * samples.length / sampleStep
+   / viewport.z;
+
+gl_Position =
+  vec4(position * <b>2. - 1.</b>, 0, 1);</pre>
+    <p>Note <code>viewport.zw</code>, not <code>.ww</code>. Both components of <code>join · ½·thickness</code> are pixel distances; each is normalised by <b>its own axis</b>. The normal was built isotropically in Plate 04 and it is unbuilt isotropically here — the aspect correction is symmetric, so a 45° join still looks like 45° on screen.</p>
+    <p>The <code>passId</code> line tiles fixed-size texture passes side by side. Then <code>× 2 − 1</code> maps the 0…1 box onto clip space, and the vertex is done.</p>
+    <div class="note">Everything upstream ran in 0…1 normalised space on purpose: it is the only space where a y from <code>deamp</code> and an x from <code>pxStep</code> are directly comparable. Clip space is put on last, as a coat.</div>
+  </div>
+  <div class="col-fig"><div class="fig" id="f10"></div>
+    <p class="figcap">Two vertices, one <code>id</code>, <code>sign</code> = ±1 — pushed apart, then remapped.</p>
+  </div>
+</section>
+
+<section class="close">
+  <h2>Edges to the reading</h2>
+  <div class="edges">
+    <div class="edge">
+      <span class="tag">correction</span>
+      <h3>“Miter” is not a horizontal mode</h3>
+      <p>It is the genuine geometric bisector and it can point anywhere in that −90°…+90° fan. For a gentle waveform it sits close to vertical; it only swings toward horizontal when the corner is sharp. The mode names describe the <i>rule used</i>, not a direction.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">the missing half</span>
+      <h3>Two jobs, one vector</h3>
+      <p>Snapping to vertical caps the miter spike — but that is the side effect. The purpose is that this shader draws an <b>aggregate</b>, and the vertical join is literally the ±1σ envelope of the samples in that column. Plain <code>line-vert.glsl</code> plots single samples, has no σ, and needs none of this.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">nuance</span>
+      <h3>The gates are min and max, not left and right</h3>
+      <p><code>minVertLen</code>/<code>maxVertLen</code> are a sorted pair, so the shader never cares which side was steeper. The blend always ends at <code>vert * maxVertLen</code> — the <i>looser</i> of the two — which is what makes the handoff to the vertical branch exact.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">nuance</span>
+      <h3>The end caps are not the corner rule</h3>
+      <p>The first two branches fire on <code>statsPrev.z == -1</code> / <code>statsNext.z == -1</code> — the NaN flag, meaning there is no neighbour. They fall back to a single raw normal, ignoring σ entirely. Those are data-boundary cases, not shape cases.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">caveat in the source</span>
+      <h3>Only the current σ is used</h3>
+      <p><code>sdevPrev</code>, <code>sdevNext</code> and friends are computed, normalised, and then only shipped to the fragment shader as varyings. The join reads <code>sdevCurr</code> alone — which is what the author's own <code>// FIXME: sdev should be compensated by curve bend</code> is about.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">caveat</span>
+      <h3>The vertical branch is unbounded</h3>
+      <p><code>join = vert * vertSdev</code> has no ceiling. On very noisy data the ribbon can reach well past the plot. The miter spike was traded for a vertical one — far less objectionable for a waveform, but not eliminated.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">discrepancy</span>
+      <h3>The two shaders normalise differently</h3>
+      <p><code>range-vert</code> uses <code>vec2(-dy, pxStep/viewport.w)</code> — both terms in viewport-heights. <code>line-vert</code> writes <code>vec2(-dy, pxStep/viewport.z) / viewport.zw</code>, which divides the amplitude delta by <i>width</i>. Worth knowing before you read one as a simplification of the other.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">context</span>
+      <h3>side earns its keep downstream</h3>
+      <p>It never moves a vertex, but <code>statsLeft</code>/<code>statsRight</code>/<code>statsPrevRight</code>/<code>statsNextLeft</code> let <code>fade-frag.glsl</code> know which two centrelines a fragment sits between — that is where the antialiasing and the alpha falloff come from.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Source: dy/gl-waveform — shader/range-vert.glsl, shader/line-vert.glsl, shader/deamp.glsl, index.js.<br>
+  Figures are drawn to the uniform values in the masthead and are geometrically exact, not schematic; thickness is real, not exaggerated.
+</footer>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+var NS="http://www.w3.org/2000/svg";
+
+function el(n,a,kids){
+  var e=document.createElementNS(NS,n);
+  if(a) for(var k in a){ if(a[k]!=null) e.setAttribute(k,a[k]); }
+  if(kids){ (kids.length!==undefined?kids:[kids]).forEach(function(c){ if(c) e.appendChild(c); }); }
+  return e;
+}
+function svg(w,h){
+  var s=el("svg",{viewBox:"0 0 "+w+" "+h,"aria-hidden":"true"});
+  s.setAttribute("preserveAspectRatio","xMidYMid meet");
+  return s;
+}
+function mount(id,s,w,h){ var n=document.getElementById(id); if(n){ n.appendChild(s); } }
+function g(cls){ return el("g",{"class":cls||null}); }
+function line(x1,y1,x2,y2,cls){ return el("line",{x1:r(x1),y1:r(y1),x2:r(x2),y2:r(y2),"class":cls}); }
+function poly(pts,cls){ return el("polyline",{points:pts.map(function(p){return r(p[0])+","+r(p[1]);}).join(" "),"class":cls}); }
+function pgon(pts,cls,extra){ var a={points:pts.map(function(p){return r(p[0])+","+r(p[1]);}).join(" "),"class":cls}; if(extra) for(var k in extra) a[k]=extra[k]; return el("polygon",a); }
+function circ(x,y,rr,cls){ return el("circle",{cx:r(x),cy:r(y),r:rr,"class":cls}); }
+function rect(x,y,w,h,cls,extra){ var a={x:r(x),y:r(y),width:r(w),height:r(h),"class":cls}; if(extra) for(var k in extra) a[k]=extra[k]; return el("rect",a); }
+function path(d,cls){ return el("path",{d:d,"class":cls}); }
+function r(v){ return Math.round(v*100)/100; }
+
+function txt(x,y,s,cls,anchor){
+  var t=el("text",{x:r(x),y:r(y),"class":"lbl "+(cls||""),"text-anchor":anchor||"start"});
+  t.textContent=s; return t;
+}
+function txtB(x,y,s,cls,anchor){ var t=txt(x,y,s,cls,anchor); t.setAttribute("class","lbl bg "+(cls||"")); return t; }
+function txtS(x,y,s,cls,anchor){ var t=txt(x,y,s,cls,anchor); t.setAttribute("class","lbl sm "+(cls||"")); return t; }
+
+function arrow(parent,x1,y1,x2,y2,cls,head,w){
+  head=head||9; w=w||3.6;
+  var dx=x2-x1, dy=y2-y1, L=Math.hypot(dx,dy);
+  if(L<0.001) return;
+  var ux=dx/L, uy=dy/L, bx=x2-ux*head, by=y2-uy*head;
+  var gg=g(cls);
+  gg.appendChild(line(x1,y1,bx,by,"v"));
+  gg.appendChild(pgon([[x2,y2],[bx-uy*w,by+ux*w],[bx+uy*w,by-ux*w]],"vh"));
+  parent.appendChild(gg);
+}
+function dimArrow(parent,x1,y1,x2,y2,cls){
+  var gg=g(cls);
+  var dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy); if(L<.001) return;
+  var ux=dx/L,uy=dy/L,h=6,w=2.6;
+  gg.appendChild(line(x1+ux*h,y1+uy*h,x2-ux*h,y2-uy*h,"thin"));
+  gg.appendChild(pgon([[x1,y1],[x1+ux*h-uy*w,y1+uy*h+ux*w],[x1+ux*h+uy*w,y1+uy*h-ux*w]],"vh"));
+  gg.appendChild(pgon([[x2,y2],[x2-ux*h-uy*w,y2-uy*h+ux*w],[x2-ux*h+uy*w,y2-uy*h-ux*w]],"vh"));
+  parent.appendChild(gg);
+}
+function rightAngle(parent,px,py,ax,ay,bx,by,size,cls){
+  size=size||9;
+  var a=unit(ax-px,ay-py), b=unit(bx-px,by-py);
+  parent.appendChild(poly([
+    [px+a[0]*size,py+a[1]*size],
+    [px+(a[0]+b[0])*size,py+(a[1]+b[1])*size],
+    [px+b[0]*size,py+b[1]*size]
+  ],"thin "+(cls||"c-ink3")));
+}
+function arcBetween(cx,cy,rad,ax,ay,bx,by,cls){
+  var a=unit(ax-cx,ay-cy), b=unit(bx-cx,by-cy);
+  var a0=Math.atan2(a[1],a[0]), a1=Math.atan2(b[1],b[0]);
+  var d=a1-a0; while(d>Math.PI) d-=2*Math.PI; while(d<-Math.PI) d+=2*Math.PI;
+  var sweep = d>0?1:0;
+  var x0=cx+a[0]*rad, y0=cy+a[1]*rad, x1=cx+b[0]*rad, y1=cy+b[1]*rad;
+  return path("M"+r(x0)+","+r(y0)+" A"+rad+","+rad+" 0 0 "+sweep+" "+r(x1)+","+r(y1), "thin "+(cls||"c-ink3"));
+}
+function unit(x,y){ var l=Math.hypot(x,y)||1; return [x/l,y/l]; }
+
+/* ============ shared shader constants ============ */
+var VW=220, VZ=660, TH=24, PXSTEP=85;
+var W = PXSTEP/VW;              // 0.386364  — normal's +x component
+var HN = 0.5*TH/VW;             // half-thickness in normalised y
+var KSD = 2*VW/TH;              // sdev -> vertSdev  (18.333)
+
+var AP=0.22, AC=0.72, AN=0.40;  // spotlight avgs
+
+/* normal for a given dy (normalised y delta), returned in MATH coords (y up) */
+function normalFor(dy){ return unit(-dy, W); }
+var nL = normalFor(AC-AP);
+var nR = normalFor(AN-AC);
+var bis = unit(nL[0]+nR[0], nL[1]+nR[1]);
+var bisLen = Math.abs(1/(nL[0]*bis[0]+nL[1]*bis[1]));
+var vLL = Math.abs(1/nL[1]);
+var vRL = Math.abs(1/nR[1]);
+var MINV = Math.min(vLL,vRL), MAXV = Math.max(vLL,vRL);
+
+/* ============ PLATE 1 ============ */
+(function(){
+  var Wd=660,Hd=258, s=svg(Wd,Hd), root=g(); s.appendChild(root);
+  var xs=[120,265,410,555], top=92, bot=196, spread=13;
+
+  // shaded strip body
+  for(var i=0;i<xs.length-1;i++){
+    root.appendChild(pgon([[xs[i],top],[xs[i+1],top],[xs[i+1],bot],[xs[i],bot]],"",
+      {fill:"var(--sheet-2)",stroke:"none"}));
+  }
+  // strip diagonals (triangle seams)
+  for(i=0;i<xs.length-1;i++){
+    var d=g("c-ink3"); d.appendChild(line(xs[i],bot,xs[i+1],top,"thin")); root.appendChild(d);
+  }
+  // ribbon edges
+  var e=g("c-ink");
+  e.appendChild(poly(xs.map(function(x){return [x,top];}),"v"));
+  e.appendChild(poly(xs.map(function(x){return [x,bot];}),"v"));
+  root.appendChild(e);
+
+  xs.forEach(function(x,i){
+    [top,bot].forEach(function(y){
+      var gg=g("c-amber");
+      gg.appendChild(circ(x-spread/2,y,4.2,"pt"));
+      gg.appendChild(circ(x+spread/2,y,4.2,"ptr"));
+      root.appendChild(gg);
+    });
+    root.appendChild(txt(x, 232, "id = "+i, "c-ink","middle"));
+  });
+  // side labels, once, on the last column
+  var lx=xs[xs.length-1];
+  var sg=g("c-ink3");
+  sg.appendChild(line(lx-spread/2,top-8,lx-spread/2-18,top-26,"thin"));
+  sg.appendChild(line(lx+spread/2,top-8,lx+spread/2+8,top-26,"thin"));
+  root.appendChild(sg);
+  root.appendChild(txtS(lx-spread/2-20,top-30,"side −1","c-ink3","end"));
+  root.appendChild(txtS(lx+spread/2+10,top-30,"side +1","c-ink3","start"));
+  root.appendChild(txtS(lx+spread/2+10,top-18,"same point","c-ink3","start"));
+
+  // sign bracket
+  var bx=64;
+  dimArrow(root,bx,top,bx,bot,"c-plum");
+  root.appendChild(txt(bx-8,(top+bot)/2-4,"sign","c-plum","end"));
+  root.appendChild(txtS(bx-8,(top+bot)/2+9,"±1 = edge","c-plum","end"));
+
+  // id axis
+  arrow(root,110,250,570,250,"c-ink3",8,3);
+  root.appendChild(txtS(590,254,"id →","c-ink3","start"));
+
+  // callout
+  root.appendChild(txt(120,50,"4 vertices per id — 2 positions, each emitted twice","c-ink2","start"));
+  root.appendChild(txtS(120,66,"the duplicate carries the other `side`; the position is identical","c-ink3","start"));
+  mount("f1",s);
+})();
+
+/* ============ PLATE 2 ============ */
+(function(){
+  var Wd=660,Hd=270, s=svg(Wd,Hd), root=g(); s.appendChild(root);
+  var x0=48,x1=612, ybase=214, yh=150;
+  var N=64, vals=[];
+  for(var i=0;i<N;i++){
+    vals.push(0.50 + 0.20*Math.sin(i*0.42) + 0.12*Math.sin(i*1.63+1.1) + 0.07*Math.sin(i*3.11+0.4));
+  }
+  var xa=function(i){ return x0 + i*(x1-x0)/(N-1); };
+  var ya=function(v){ return ybase - v*yh; };
+
+  // window
+  var wA=22, wB=42;
+  root.appendChild(rect(xa(wA),ya(1.02),xa(wB)-xa(wA),yh*1.02,"",{fill:"var(--sheet-2)",stroke:"none"}));
+  var wl=g("c-blue");
+  wl.appendChild(line(xa(wA),ya(1.02),xa(wA),ybase+8,"dash"));
+  wl.appendChild(line(xa(wB),ya(1.02),xa(wB),ybase+8,"dash"));
+  root.appendChild(wl);
+
+  // baseline
+  root.appendChild(line(x0-6,ybase,x1+6,ybase,"rul"));
+
+  // samples
+  var sg=g("c-ink3"), pts=[];
+  for(i=0;i<N;i++){ pts.push([xa(i),ya(vals[i])]); }
+  sg.appendChild(poly(pts,"thin"));
+  root.appendChild(sg);
+  var sg2=g("c-ink2");
+  for(i=0;i<N;i++){ sg2.appendChild(circ(xa(i),ya(vals[i]),1.7,"pt")); }
+  root.appendChild(sg2);
+
+  // mean & sdev inside window
+  var sum=0,sum2=0,n=0;
+  for(i=wA;i<=wB;i++){ sum+=vals[i]; sum2+=vals[i]*vals[i]; n++; }
+  var avg=sum/n, sd=Math.sqrt(Math.abs(sum2/n-avg*avg));
+
+  root.appendChild(rect(xa(wA),ya(avg+sd),xa(wB)-xa(wA),(sd*2)*yh,"",
+    {fill:"var(--plum)","fill-opacity":".17",stroke:"none"}));
+  var pg=g("c-plum");
+  pg.appendChild(line(xa(wA),ya(avg+sd),xa(wB),ya(avg+sd),"thin"));
+  pg.appendChild(line(xa(wA),ya(avg-sd),xa(wB),ya(avg-sd),"thin"));
+  dimArrow(pg,xa(wB)+16,ya(avg+sd),xa(wB)+16,ya(avg-sd),"c-plum");
+  pg.appendChild(txt(xa(wB)+24,ya(avg)-2,"2σ","c-plum","start"));
+  pg.appendChild(txtS(xa(wB)+24,ya(avg)+11,"sdev","c-plum","start"));
+  root.appendChild(pg);
+
+  var ag=g("c-ink");
+  ag.appendChild(line(xa(wA)-14,ya(avg),xa(wB)+8,ya(avg),"v"));
+  ag.appendChild(txt(xa(wA)-18,ya(avg)+4,"avg","c-ink","end"));
+  root.appendChild(ag);
+
+  // window annotations
+  var bg=g("c-blue");
+  dimArrow(bg,xa(wA),ybase+24,xa(wB),ybase+24,"c-blue");
+  bg.appendChild(txt((xa(wA)+xa(wB))/2,ybase+42,"sampleStep","c-blue","middle"));
+  bg.appendChild(txtS(xa(wA),ybase+18,"offset0","c-blue","middle"));
+  bg.appendChild(txtS(xa(wB),ybase+18,"offset1","c-blue","middle"));
+  root.appendChild(bg);
+
+  var cg=g("c-amber");
+  cg.appendChild(line(xa((wA+wB)/2),ya(1.02)-10,xa((wA+wB)/2),ya(1.02)+6,"v"));
+  cg.appendChild(txt(xa((wA+wB)/2),ya(1.02)-16,"offset = id · sampleStep","c-amber","middle"));
+  root.appendChild(cg);
+
+  root.appendChild(txtS(x0,ya(1.02)-16,"raw samples","c-ink3","start"));
+  root.appendChild(txtS(x1,ya(1.02)-16,"one column of the plot ← all of this","c-ink3","end"));
+  mount("f2",s);
+})();
+
+/* ---- shared scene for plates 3–8 ---- */
+var YH=285, DX=W*YH, XA=112, YB=316;
+var AVG5=[0.50,AP,AC,AN,0.78];
+function SX(i){ return XA + i*DX; }
+function SY(v){ return YB - v*YH; }
+var PX=[0,1,2,3,4].map(function(i){ return [SX(i),SY(AVG5[i])]; });
+var HP = HN*YH;   // half thickness, figure px  (~15.5)
+
+/* ============ PLATE 3 ============ */
+(function(){
+  var Wd=660,Hd=352, s=svg(Wd,Hd), root=g(); s.appendChild(root);
+  // grid
+  var gg=g();
+  for(var k=0;k<=4;k++){ gg.appendChild(line(40,SY(k/4),628,SY(k/4),"grid")); }
+  root.appendChild(gg);
+  root.appendChild(txtS(34,SY(0)+4,"0.0","c-ink3","end"));
+  root.appendChild(txtS(34,SY(1)+4,"1.0","c-ink3","end"));
+  root.appendChild(txtS(34,SY(.5)+4,"0.5","c-ink3","end"));
+  root.appendChild(txtS(34,SY(1)-14,"deamp →","c-ink3","end"));
+
+  root.appendChild(poly(PX,"v c-ink"));
+  var names=["avgPrev2","avgPrev","avgCurr","avgNext","avgNext2"];
+  PX.forEach(function(p,i){
+    var cls = i===2?"c-amber":"c-ink2";
+    var og=g(cls);
+    og.appendChild(circ(p[0],p[1], i===2?6:4.4, i===2?"pt":"ptr"));
+    root.appendChild(og);
+    root.appendChild(txt(p[0], p[1]-(i===2?18:14), names[i], cls, "middle"));
+    root.appendChild(txtS(p[0], p[1]-(i===2?31:26), AVG5[i].toFixed(2), "c-ink3","middle"));
+  });
+  // pxStep dim
+  dimArrow(root,PX[1][0],336,PX[2][0],336,"c-blue");
+  root.appendChild(txt((PX[1][0]+PX[2][0])/2,332,"pxStep","c-blue","middle"));
+  // the +.5 note
+  var hg=g("c-teal");
+  hg.appendChild(line(PX[2][0],PX[2][1]+14,PX[2][0],344,"dot3"));
+  hg.appendChild(line(PX[2][0]-DX/2,300,PX[2][0]-DX/2,344,"dash"));
+  hg.appendChild(line(PX[2][0]+DX/2,300,PX[2][0]+DX/2,344,"dash"));
+  root.appendChild(hg);
+  root.appendChild(txtS(PX[2][0]+DX/2+6,312,"pixel column of id — vertex sits at its centre (+.5)","c-teal","start"));
+  mount("f3",s);
+})();
+
+/* ============ PLATE 4 ============ */
+(function(){
+  var Wd=660,Hd=352, s=svg(Wd,Hd), root=g(); s.appendChild(root);
+
+  /* --- left panel: the rotation --- */
+  var A=[PX[1][0]-46,PX[1][1]], B=[PX[2][0]-46,PX[2][1]];
+  root.appendChild(line(A[0],A[1],B[0],B[1],"v c-ink"));
+  root.appendChild(circ(A[0],A[1],4,"pt c-ink2"));
+  root.appendChild(circ(B[0],B[1],4,"pt c-ink2"));
+  root.appendChild(txtS(A[0]-6,A[1]+14,"prev","c-ink3","end"));
+  root.appendChild(txtS(B[0]+6,B[1]-8,"curr","c-ink3","start"));
+
+  // d components
+  var dg=g("c-ink3");
+  dg.appendChild(line(A[0],A[1],B[0],A[1],"dash"));
+  dg.appendChild(line(B[0],A[1],B[0],B[1],"dash"));
+  root.appendChild(dg);
+  root.appendChild(txtS((A[0]+B[0])/2,A[1]+15,"dx = pxStep","c-ink3","middle"));
+  root.appendChild(txtS(B[0]+5,(A[1]+B[1])/2,"dy","c-ink3","start"));
+
+  // midpoint + normal
+  var M=[(A[0]+B[0])/2,(A[1]+B[1])/2];
+  var NLEN=78;
+  arrow(root,M[0],M[1],M[0]+nL[0]*NLEN,M[1]-nL[1]*NLEN,"c-blue");
+  rightAngle(root,M[0],M[1],B[0],B[1],M[0]+nL[0]*NLEN,M[1]-nL[1]*NLEN,10,"c-ink3");
+  root.appendChild(txtB(M[0]+nL[0]*NLEN-6,M[1]-nL[1]*NLEN-9,"normalLeft","c-blue","middle"));
+  root.appendChild(txtS(M[0]+nL[0]*NLEN-6,M[1]-nL[1]*NLEN+4,"(−dy, dx) normalised","c-ink3","middle"));
+
+  root.appendChild(txt(52,44,"rotate the segment 90°","c-ink2","start"));
+  root.appendChild(txtS(52,60,"(dx, dy) → (−dy, dx)","c-ink3","start"));
+
+  /* --- right panel: the fan --- */
+  var C=[512,236], R=96;
+  root.appendChild(path("M"+(C[0]-R)+","+C[1]+" A"+R+","+R+" 0 0 1 "+(C[0]+R)+","+C[1]+" Z","",
+    ));
+  var half=path("M"+(C[0]-R)+","+C[1]+" A"+R+","+R+" 0 0 1 "+(C[0]+R)+","+C[1]+" Z","");
+  half.setAttribute("fill","var(--sheet-2)"); half.setAttribute("stroke","none");
+  root.appendChild(half);
+  root.appendChild(line(C[0]-R-12,C[1],C[0]+R+12,C[1],"rul"));
+
+  var dys=[-4,-1.6,-0.85,-0.4,0,0.4,0.85,1.6,4];
+  dys.forEach(function(dy){
+    var n=normalFor(dy);
+    var isMid = dy===0;
+    var gg=g(isMid?"c-blue":"c-ink3");
+    gg.appendChild(line(C[0],C[1],C[0]+n[0]*R,C[1]-n[1]*R, isMid?"v":"thin"));
+    root.appendChild(gg);
+  });
+  var nm=normalFor(0);
+  arrow(root,C[0],C[1],C[0]+nm[0]*R,C[1]-nm[1]*R,"c-blue",9,3.4);
+  root.appendChild(circ(C[0],C[1],4,"pt c-ink2"));
+
+  root.appendChild(txtS(C[0],C[1]-R-10,"flat segment → (0, 1)","c-blue","middle"));
+  root.appendChild(txtS(C[0]-R-6,C[1]+16,"steep rise","c-ink3","start"));
+  root.appendChild(txtS(C[0]-R-6,C[1]+28,"→ (−1, 0)","c-ink3","start"));
+  root.appendChild(txtS(C[0]+R+6,C[1]+16,"steep fall","c-ink3","end"));
+  root.appendChild(txtS(C[0]+R+6,C[1]+28,"→ (+1, 0)","c-ink3","end"));
+  root.appendChild(txt(C[0],C[1]+52,"n.y > 0 always","c-ink","middle"));
+  root.appendChild(txtS(C[0],C[1]+66,"the whole fan, and nothing below the line","c-ink3","middle"));
+  root.appendChild(txt(C[0],44,"reachable normals","c-ink2","middle"));
+  mount("f4",s);
+})();
+
+/* ---- helpers for the corner scene (plates 5–7) ---- */
+var CA=PX[1], CB=PX[2], CC=PX[3];
+function offsetLine(p1,p2,n,d,ext){
+  ext=ext||0;
+  var u=unit(p2[0]-p1[0],p2[1]-p1[1]);
+  return [
+    [p1[0]+n[0]*d-u[0]*ext, p1[1]-n[1]*d-u[1]*ext],
+    [p2[0]+n[0]*d+u[0]*ext, p2[1]-n[1]*d+u[1]*ext]
+  ];
+}
+function intersect(a,b,c,d){
+  var x1=a[0],y1=a[1],x2=b[0],y2=b[1],x3=c[0],y3=c[1],x4=d[0],y4=d[1];
+  var den=(x1-x2)*(y3-y4)-(y1-y2)*(x3-x4);
+  var t=((x1-x3)*(y3-y4)-(y1-y3)*(x3-x4))/den;
+  return [x1+t*(x2-x1), y1+t*(y2-y1)];
+}
+
+/* ============ PLATE 5 ============ */
+(function(){
+  var Wd=660,Hd=362, s=svg(Wd,Hd), root=g(); s.appendChild(root);
+  var YH3=YH*3, DX3=W*YH3, HP3=HN*YH3;   // 3× detail of the corner
+  var V=[300,184];
+  var dP=unit(-DX3,(AC-AP)*YH3), dN=unit(DX3,(AC-AN)*YH3);
+  var A=[V[0]+dP[0]*158, V[1]+dP[1]*158];
+  var C=[V[0]+dN[0]*198, V[1]+dN[1]*198];
+
+  root.appendChild(poly([A,V,C],"v c-ink"));
+  [A,C].forEach(function(p){ root.appendChild(circ(p[0],p[1],3.6,"pt c-ink3")); });
+  root.appendChild(txtS(A[0]-4,A[1]+14,"← prev","c-ink3","start"));
+  root.appendChild(txtS(C[0]+4,C[1]+14,"next →","c-ink3","end"));
+
+  var eL=offsetLine(A,V,nL,HP3,72), eR=offsetLine(V,C,nR,HP3,72);
+  var X=intersect(eL[0],eL[1],eR[0],eR[1]);
+  var lg=g("c-blue"); lg.appendChild(line(eL[0][0],eL[0][1],eL[1][0],eL[1][1],"dash")); root.appendChild(lg);
+  var rg=g("c-teal"); rg.appendChild(line(eR[0][0],eR[0][1],eR[1][0],eR[1][1],"dash")); root.appendChild(rg);
+
+  var tL=[V[0]+nL[0]*HP3, V[1]-nL[1]*HP3];
+  var tR=[V[0]+nR[0]*HP3, V[1]-nR[1]*HP3];
+  arrow(root,V[0],V[1],tL[0],tL[1],"c-blue",9,3.4);
+  arrow(root,V[0],V[1],tR[0],tR[1],"c-teal",9,3.4);
+
+  // join to the crossing
+  arrow(root,V[0],V[1],X[0],X[1],"c-amber",11,4.4);
+  root.appendChild(circ(V[0],V[1],5.2,"pt c-ink"));
+  var xg=g("c-amber");
+  xg.appendChild(line(X[0]-8,X[1]-8,X[0]+8,X[1]+8,"v"));
+  xg.appendChild(line(X[0]-8,X[1]+8,X[0]+8,X[1]-8,"v"));
+  root.appendChild(xg);
+
+  // the projections land exactly on the two arrow tips
+  var pg2=g("c-blue"); pg2.appendChild(line(X[0],X[1],tL[0],tL[1],"dot3")); root.appendChild(pg2);
+  var pg3=g("c-teal"); pg3.appendChild(line(X[0],X[1],tR[0],tR[1],"dot3")); root.appendChild(pg3);
+  rightAngle(root,tL[0],tL[1],X[0],X[1],V[0],V[1],9,"c-blue");
+  rightAngle(root,tR[0],tR[1],X[0],X[1],V[0],V[1],9,"c-teal");
+
+  root.appendChild(txt(tL[0]-9,tL[1]-4,"nL","c-blue","end"));
+  root.appendChild(txtS(tL[0]-9,tL[1]+10,"projection = 1","c-blue","end"));
+  root.appendChild(txt(tR[0]+11,tR[1]+2,"nR","c-teal","start"));
+  root.appendChild(txtS(tR[0]+11,tR[1]+16,"projection = 1","c-teal","start"));
+  root.appendChild(txtB(X[0]+14,X[1]-2,"join","c-amber","start"));
+  root.appendChild(txtS(X[0]+14,X[1]+12,"lands on both edges","c-ink3","start"));
+
+  root.appendChild(txt(44,42,"each segment's own upper edge","c-ink2","start"));
+  root.appendChild(txtS(44,58,"centreline pushed out by ½·thickness along its own normal","c-ink3","start"));
+  root.appendChild(txtS(616,42,"detail · 3×","c-ink3","end"));
+  root.appendChild(txt(384,332,"dot(join, nL) = dot(join, nR) = 1","c-amber","start"));
+  root.appendChild(txtS(384,347,"in half-thickness units — see Plate 07","c-ink3","start"));
+  mount("f5",s);
+})();
+
+/* ============ PLATE 6 ============ */
+(function(){
+  var Wd=660,Hd=344, s=svg(Wd,Hd), root=g(); s.appendChild(root);
+  var V=[300,264], U=100;   // U px == one half-thickness for this plate
+  var dP=unit(-1,(AC-AP)/W), dN=unit(1,(AC-AN)/W);
+  root.appendChild(poly([[V[0]+dP[0]*74,V[1]+dP[1]*74],V,[V[0]+dN[0]*74,V[1]+dN[1]*74]],"v c-ink"));
+
+  var tL=[V[0]+nL[0]*U, V[1]-nL[1]*U];
+  var tR=[V[0]+nR[0]*U, V[1]-nR[1]*U];
+  var Bu=[V[0]+bis[0]*U, V[1]-bis[1]*U];
+  var Bm=[V[0]+bis[0]*U*bisLen, V[1]-bis[1]*U*bisLen];
+
+  // bisector ray
+  var bgv=g("c-amber"); bgv.appendChild(line(V[0],V[1],V[0]+bis[0]*186,V[1]-bis[1]*186,"dot3")); root.appendChild(bgv);
+
+  arrow(root,V[0],V[1],tL[0],tL[1],"c-blue",9,3.4);
+  arrow(root,V[0],V[1],tR[0],tR[1],"c-teal",9,3.4);
+  arrow(root,V[0],V[1],Bm[0],Bm[1],"c-amber",11,4.4);
+  root.appendChild(circ(Bu[0],Bu[1],4,"ptr c-amber"));
+  root.appendChild(circ(V[0],V[1],5.2,"pt c-ink"));
+
+  // the projection of the miter onto each normal is exactly 1 — it lands on the arrow tips
+  var pg2=g("c-blue"); pg2.appendChild(line(Bm[0],Bm[1],tL[0],tL[1],"dot3")); root.appendChild(pg2);
+  var pg3=g("c-teal"); pg3.appendChild(line(Bm[0],Bm[1],tR[0],tR[1],"dot3")); root.appendChild(pg3);
+  rightAngle(root,tL[0],tL[1],Bm[0],Bm[1],V[0],V[1],9,"c-blue");
+  rightAngle(root,tR[0],tR[1],Bm[0],Bm[1],V[0],V[1],9,"c-teal");
+
+  root.appendChild(txt(tL[0]-9,tL[1]-2,"nL","c-blue","end"));
+  root.appendChild(txtS(tL[0]-9,tL[1]+12,"= 1","c-blue","end"));
+  root.appendChild(txt(tR[0]+11,tR[1]+2,"nR","c-teal","start"));
+  root.appendChild(txtS(tR[0]+11,tR[1]+16,"= 1","c-teal","start"));
+  root.appendChild(txtS(Bu[0]-11,Bu[1]+4,"bisec  (|·| = 1)","c-amber","end"));
+  root.appendChild(txtB(Bm[0],Bm[1]-14,"× bisecLen = "+bisLen.toFixed(2),"c-amber","middle"));
+
+  // theta arc
+  root.appendChild(arcBetween(V[0],V[1],46,tL[0],tL[1],tR[0],tR[1],"c-ink3"));
+  var thDeg = Math.acos(Math.max(-1,Math.min(1,nL[0]*nR[0]+nL[1]*nR[1])))*180/Math.PI;
+  root.appendChild(txtS(250,242,"θ ≈ "+thDeg.toFixed(0)+"°","c-ink3","end"));
+
+  root.appendChild(txt(44,42,"bisecLen = 1 / cos(θ/2)","c-amber","start"));
+  root.appendChild(txtS(44,58,"the only length for which the bisector lands on both edges","c-ink3","start"));
+
+  /* inset: 1/cos(theta/2) */
+  var ix=470, iy=48, iw=168, ih=130;
+  root.appendChild(rect(ix,iy,iw,ih,"",{fill:"var(--sheet-2)",stroke:"var(--rule-2)","stroke-width":"1"}));
+  var maxY=5;
+  var px=function(th){ return ix + (th/175)*iw; };
+  var py=function(v){ return iy+ih - Math.min(v,maxY)/maxY*(ih-14) - 7; };
+  var ptsI=[];
+  for(var th=0; th<=172; th+=2){
+    var v=1/Math.cos(th*Math.PI/360);
+    ptsI.push([px(th),py(v)]);
+  }
+  root.appendChild(poly(ptsI,"v c-amber"));
+  var ag2=g("c-ink3");
+  ag2.appendChild(line(ix,py(1),ix+iw,py(1),"dot3"));
+  ag2.appendChild(line(px(180),iy+2,px(180),iy+ih-2,"dash"));
+  root.appendChild(ag2);
+  root.appendChild(txtS(ix+5,py(1)-4,"1","c-ink3","start"));
+  root.appendChild(txtS(ix+5,iy+13,"1/cos(θ/2)","c-amber","start"));
+  root.appendChild(txtS(ix+iw-5,iy+ih-4,"θ → 180°","c-ink3","end"));
+  var mk=g("c-amber"); mk.appendChild(circ(px(thDeg),py(bisLen),3.4,"pt")); root.appendChild(mk);
+  root.appendChild(txtS(px(thDeg)+6,py(bisLen)+11,"here","c-amber","start"));
+  mount("f6",s);
+})();
+
+/* ============ PLATE 7 ============ */
+(function(){
+  var Wd=660,Hd=352, s=svg(Wd,Hd), root=g(); s.appendChild(root);
+
+  /* left panel — the ruler */
+  var ax=118, ay=176, seg=166;
+  root.appendChild(rect(ax,ay-HP,seg,HP*2,"",{fill:"var(--sheet-2)",stroke:"none"}));
+  var eg=g("c-ink3");
+  eg.appendChild(line(ax,ay-HP,ax+seg,ay-HP,"thin"));
+  eg.appendChild(line(ax,ay+HP,ax+seg,ay+HP,"thin"));
+  root.appendChild(eg);
+  root.appendChild(line(ax,ay,ax+seg,ay,"v c-ink"));
+
+  arrow(root,ax+seg*0.5,ay,ax+seg*0.5,ay-HP,"c-amber",8,3.2);
+  arrow(root,ax+seg*0.5,ay,ax+seg*0.5,ay+HP,"c-amber",8,3.2);
+  root.appendChild(circ(ax+seg*0.5,ay,4.4,"pt c-ink"));
+  root.appendChild(txtS(ax+seg*0.5+8,ay-HP+5,"sign = +1","c-amber","start"));
+  root.appendChild(txtS(ax+seg*0.5+8,ay+HP-2,"sign = −1","c-amber","start"));
+  dimArrow(root,ax-16,ay-HP,ax-16,ay+HP,"c-ink2");
+  root.appendChild(txt(ax-22,ay+4,"thickness","c-ink2","end"));
+  root.appendChild(txt(ax,ay-HP-28,"|join| = 1","c-amber","start"));
+  root.appendChild(txtS(ax,ay-HP-14,"→ displaces ½·thickness","c-ink3","start"));
+  root.appendChild(txtS(ax,ay+HP+26,"join is dimensionless; this is the unit","c-ink3","start"));
+
+  /* divider */
+  root.appendChild(line(322,40,322,318,"rul"));
+
+  /* right panel — vertLen */
+  var bx=392, by=250, span=180;
+  var tilt=nL;                       // normal of the left segment
+  var segDir=unit(tilt[1],tilt[0]);  // perpendicular to the normal = segment direction
+  // draw the offset edge as a tilted line through a point
+  var slope = -(AC-AP)/W;            // dy/dx of edge in math coords? use segment dir directly
+  var d1=[bx - segDir[0]*span*0.45, by + segDir[1]*span*0.45];
+  var d2=[bx + segDir[0]*span*0.55, by - segDir[1]*span*0.55];
+
+  // centreline through origin point O
+  var O=[bx,by];
+  var eg2=g("c-ink3"); eg2.appendChild(line(d1[0],d1[1],d2[0],d2[1],"thin")); root.appendChild(eg2);
+
+  var U2=62;
+  // perpendicular route
+  var Pn=[O[0]+tilt[0]*U2, O[1]-tilt[1]*U2];
+  // the offset edge (parallel, through Pn)
+  var q1=[d1[0]+tilt[0]*U2, d1[1]-tilt[1]*U2], q2=[d2[0]+tilt[0]*U2, d2[1]-tilt[1]*U2];
+  var bg3=g("c-blue"); bg3.appendChild(line(q1[0],q1[1],q2[0],q2[1],"dash")); root.appendChild(bg3);
+
+  arrow(root,O[0],O[1],Pn[0],Pn[1],"c-blue",8,3.2);
+  rightAngle(root,O[0],O[1],d2[0],d2[1],Pn[0],Pn[1],9,"c-ink3");
+  root.appendChild(txtS(Pn[0]-6,Pn[1]-8,"1","c-blue","end"));
+
+  // vertical route: up until it meets the offset edge
+  var vLen = U2/Math.abs(tilt[1]);
+  var Pv=[O[0], O[1]-vLen];
+  arrow(root,O[0],O[1],Pv[0],Pv[1],"c-plum",9,3.6);
+  root.appendChild(circ(O[0],O[1],4.6,"pt c-ink"));
+  var cg2=g("c-ink3"); cg2.appendChild(line(Pn[0],Pn[1],Pv[0],Pv[1],"dot3")); root.appendChild(cg2);
+  root.appendChild(txtB(Pv[0]+9,Pv[1]+4,"vertLen = "+vLL.toFixed(2),"c-plum","start"));
+  root.appendChild(txtS(Pv[0]+9,Pv[1]+18,"= 1 / |n.y|","c-plum","start"));
+
+  root.appendChild(arcBetween(O[0],O[1],34,Pv[0],Pv[1],Pn[0],Pn[1],"c-ink3"));
+  root.appendChild(txtS(O[0]-30,O[1]-26,"tilt","c-ink3","end"));
+
+  root.appendChild(txt(392,44,"same destination, two routes","c-ink2","start"));
+  root.appendChild(txtS(392,60,"the vertical route is always the longer one","c-ink3","start"));
+  root.appendChild(txtS(346,342,"minVertLen "+MINV.toFixed(2)+"   ·   maxVertLen "+MAXV.toFixed(2),"c-ink2","start"));
+  mount("f7",s);
+})();
+
+/* ============ PLATE 8 ============ */
+(function(){
+  var Wd=660,Hd=290, s=svg(Wd,Hd), root=g(); s.appendChild(root);
+  var cy=150;
+
+  function panel(cx,sdNorm,label,sub){
+    var vsd = sdNorm*KSD;
+    var ht = HP; // half thickness in px
+    // line band
+    root.appendChild(rect(cx-78,cy-ht,156,ht*2,"",{fill:"var(--sheet-2)",stroke:"none"}));
+    var eg=g("c-ink3");
+    eg.appendChild(line(cx-78,cy-ht,cx+78,cy-ht,"thin"));
+    eg.appendChild(line(cx-78,cy+ht,cx+78,cy+ht,"thin"));
+    root.appendChild(eg);
+    root.appendChild(line(cx-78,cy,cx+78,cy,"v c-ink"));
+
+    // sigma band
+    var sh = vsd*ht;
+    root.appendChild(rect(cx+16,cy-sh,44,sh*2,"",{fill:"var(--plum)","fill-opacity":".18",stroke:"none"}));
+    var pg=g("c-plum");
+    pg.appendChild(line(cx+16,cy-sh,cx+60,cy-sh,"thin"));
+    pg.appendChild(line(cx+16,cy+sh,cx+60,cy+sh,"thin"));
+    dimArrow(pg,cx+70,cy-sh,cx+70,cy+sh,"c-plum");
+    root.appendChild(pg);
+    root.appendChild(txt(cx+78,cy-sh-8,"±1σ","c-plum","start"));
+
+    dimArrow(root,cx-90,cy-ht,cx-90,cy+ht,"c-ink2");
+    root.appendChild(txtS(cx-96,cy+4,"thickness","c-ink2","end"));
+
+    root.appendChild(txt(cx,44,label,"c-ink","middle"));
+    root.appendChild(txtS(cx,60,sub,"c-ink3","middle"));
+    root.appendChild(txt(cx,258,"vertSdev = "+vsd.toFixed(2),"c-plum","middle"));
+    root.appendChild(txtS(cx,272, vsd<1?"σ hides inside the stroke":"σ needs more room than the stroke","c-ink3","middle"));
+  }
+  panel(185, 0.030, "quiet column", "small spread → miter territory");
+  root.appendChild(line(360,40,360,276,"rul"));
+  panel(500, 0.105, "loud column", "large spread → vertical territory");
+  mount("f8",s);
+})();
+
+/* ============ PLATE 9 — interactive ============ */
+(function(){
+  var Wd=680,Hd=396, s=svg(Wd,Hd), root=g(); s.appendChild(root);
+  mount("f9",s);
+
+  var AVG=[0.50,0.22,0.72,0.40,0.78,0.30,0.55];
+  var YH2=246, DX2=W*YH2, X02=58, YB2=282;
+  var HP2=HN*YH2;
+  var SPOT=2;
+  function gx(i){ return X02+i*DX2; }
+  function gy(v){ return YB2 - v*YH2; }
+
+  function vertexData(i){
+    var d={};
+    d.isStart = (i===0), d.isEnd = (i===AVG.length-1);
+    if(!d.isStart) d.nL = normalFor(AVG[i]-AVG[i-1]);
+    if(!d.isEnd)  d.nR = normalFor(AVG[i+1]-AVG[i]);
+    if(d.isStart){ d.mode="cap"; d.join=d.nR.slice(); return d; }
+    if(d.isEnd){ d.mode="cap"; d.join=d.nL.slice(); return d; }
+    d.bis = unit(d.nL[0]+d.nR[0], d.nL[1]+d.nR[1]);
+    d.bisLen = Math.abs(1/(d.nL[0]*d.bis[0]+d.nL[1]*d.bis[1]));
+    var a=Math.abs(1/d.nL[1]), b=Math.abs(1/d.nR[1]);
+    d.min=Math.min(a,b); d.max=Math.max(a,b);
+    return d;
+  }
+  var VD=AVG.map(function(_,i){ return vertexData(i); });
+
+  function solve(d, vsd){
+    if(d.mode==="cap") return {join:d.join, mode:"cap", t:null};
+    if(vsd < d.max){
+      if(vsd > d.min){
+        var t=(vsd-d.min)/(d.max-d.min);
+        var A=[d.bis[0]*d.bisLen, d.bis[1]*d.bisLen], B=[0, d.max];
+        return {join:[A[0]+(B[0]-A[0])*t, A[1]+(B[1]-A[1])*t], mode:"blend", t:t};
+      }
+      return {join:[d.bis[0]*d.bisLen, d.bis[1]*d.bisLen], mode:"miter", t:0};
+    }
+    return {join:[0,vsd], mode:"vert", t:1};
+  }
+
+  var MODECLS={miter:"c-amber",blend:"c-teal",vert:"c-plum",cap:"c-ink3"};
+
+  /* static chrome */
+  var chrome=g(); root.appendChild(chrome);
+  for(var k=0;k<=4;k++){ chrome.appendChild(line(40,gy(k/4),646,gy(k/4),"grid")); }
+  chrome.appendChild(line(40,332,646,332,"rul"));
+
+  var dyn=g(); root.appendChild(dyn);
+
+  var ro=document.getElementById("ro");
+  var md=document.getElementById("md");
+  var sl=document.getElementById("sig");
+
+  function render(){
+    while(dyn.firstChild) dyn.removeChild(dyn.firstChild);
+    var sd=parseFloat(sl.value);
+    var vsd=sd*KSD;
+
+    var sols=VD.map(function(d){ return solve(d,vsd); });
+
+    /* ±1σ reference band around the skeleton */
+    var band=[], bandB=[];
+    for(var i=0;i<AVG.length;i++){ band.push([gx(i),gy(AVG[i]+sd)]); }
+    for(i=AVG.length-1;i>=0;i--){ bandB.push([gx(i),gy(AVG[i]-sd)]); }
+    dyn.appendChild(pgon(band.concat(bandB),"",{fill:"var(--plum)","fill-opacity":".13",stroke:"none"}));
+
+    /* ribbon */
+    var up=[],dn=[];
+    for(i=0;i<AVG.length;i++){
+      var j=sols[i].join;
+      up.push([gx(i)+j[0]*HP2, gy(AVG[i])-j[1]*HP2]);
+      dn.push([gx(i)-j[0]*HP2, gy(AVG[i])+j[1]*HP2]);
+    }
+    dyn.appendChild(pgon(up.concat(dn.slice().reverse()),"",
+      {fill:"var(--ink)","fill-opacity":".10",stroke:"none"}));
+    dyn.appendChild(poly(up,"thin c-ink"));
+    dyn.appendChild(poly(dn,"thin c-ink"));
+
+    /* skeleton */
+    dyn.appendChild(poly(AVG.map(function(v,i){return [gx(i),gy(v)];}),"v c-ink"));
+
+    /* join vectors */
+    for(i=0;i<AVG.length;i++){
+      var cls=MODECLS[sols[i].mode];
+      var jj=sols[i].join;
+      arrow(dyn,gx(i),gy(AVG[i]),gx(i)+jj[0]*HP2,gy(AVG[i])-jj[1]*HP2,cls,7,2.8);
+      arrow(dyn,gx(i),gy(AVG[i]),gx(i)-jj[0]*HP2,gy(AVG[i])+jj[1]*HP2,cls,7,2.8);
+      var gg=g(i===SPOT?"c-amber":"c-ink2");
+      gg.appendChild(i===SPOT
+        ? pgon([[gx(i),gy(AVG[i])-6],[gx(i)+6,gy(AVG[i])],[gx(i),gy(AVG[i])+6],[gx(i)-6,gy(AVG[i])]],"pt")
+        : circ(gx(i),gy(AVG[i]),3.4,"pt"));
+      dyn.appendChild(gg);
+      dyn.appendChild(txtS(gx(i), 326, sols[i].mode, cls, "middle"));
+    }
+
+    /* number line for the spotlight vertex */
+    var d=VD[SPOT];
+    var nx0=106, nx1=612, ny=350, VMAX=2.6;
+    var nx=function(v){ return nx0+Math.min(v,VMAX)/VMAX*(nx1-nx0); };
+    var zones=[[0,d.min,"c-amber","miter"],[d.min,d.max,"c-teal","blend"],[d.max,VMAX,"c-plum","vertical"]];
+    zones.forEach(function(z){
+      var zg=g(z[2]);
+      zg.appendChild(line(nx(z[0]),ny,nx(z[1]),ny,"v"));
+      dyn.appendChild(zg);
+      dyn.appendChild(txtS((nx(z[0])+nx(z[1]))/2,ny+30,z[3],z[2],"middle"));
+    });
+    [[d.min,"minVertLen "+d.min.toFixed(2),-6,"end"],[d.max,"maxVertLen "+d.max.toFixed(2),6,"start"]].forEach(function(t){
+      var tg=g("c-ink3");
+      tg.appendChild(line(nx(t[0]),ny-7,nx(t[0]),ny+7,"thin"));
+      dyn.appendChild(tg);
+      dyn.appendChild(txtS(nx(t[0])+t[2],ny+17,t[1],"c-ink3",t[3]));
+    });
+    dyn.appendChild(txtS(nx0-8,ny+4,"vertSdev","c-ink3","end"));
+    var pg=g(MODECLS[sols[SPOT].mode]);
+    pg.appendChild(pgon([[nx(vsd),ny-4],[nx(vsd)-5,ny-14],[nx(vsd)+5,ny-14]],"pt"));
+    dyn.appendChild(pg);
+    dyn.appendChild(txtS(nx(vsd),ny-19,vsd.toFixed(2),MODECLS[sols[SPOT].mode],"middle"));
+
+    /* readout */
+    var sm=sols[SPOT];
+    ro.innerHTML = "σ <b>"+sd.toFixed(4)+"</b> &nbsp;<em>→</em>&nbsp; vertSdev <b>"+vsd.toFixed(2)+"</b>"
+      + (sm.mode==="blend" ? " &nbsp;<em>·</em>&nbsp; t <b>"+sm.t.toFixed(2)+"</b>" : "")
+      + " &nbsp;<em>·</em>&nbsp; |join| <b>"+Math.hypot(sm.join[0],sm.join[1]).toFixed(2)+"</b>";
+    md.textContent = sm.mode==="miter"?"miter":sm.mode==="blend"?"blend":"vertical";
+    md.className = "mode " + (sm.mode==="miter"?"miter":sm.mode==="blend"?"blend":"vert");
+  }
+  sl.addEventListener("input",render);
+  render();
+})();
+
+/* ============ PLATE 10 ============ */
+(function(){
+  var Wd=660,Hd=300, s=svg(Wd,Hd), root=g(); s.appendChild(root);
+
+  /* left: 0..1 box with the two vertices */
+  var bx=56, by=46, bw=230, bh=200;
+  root.appendChild(rect(bx,by,bw,bh,"",{fill:"var(--sheet-2)",stroke:"var(--rule)","stroke-width":"1"}));
+  root.appendChild(txtS(bx,by-8,"position — normalised 0…1","c-ink3","start"));
+  root.appendChild(txtS(bx-6,by+bh+13,"0,0","c-ink3","start"));
+  root.appendChild(txtS(bx+bw+6,by-2,"1,1","c-ink3","end"));
+
+  var P=[bx+bw*0.46, by+bh*0.44];
+  var jn=[bis[0]*bisLen, bis[1]*bisLen];
+  var sc=30;
+  root.appendChild(circ(P[0],P[1],4.6,"pt c-ink"));
+  arrow(root,P[0],P[1],P[0]+jn[0]*sc,P[1]-jn[1]*sc,"c-amber",8,3.2);
+  arrow(root,P[0],P[1],P[0]-jn[0]*sc,P[1]+jn[1]*sc,"c-amber",8,3.2);
+  root.appendChild(circ(P[0]+jn[0]*sc,P[1]-jn[1]*sc,3.6,"ptr c-amber"));
+  root.appendChild(circ(P[0]-jn[0]*sc,P[1]+jn[1]*sc,3.6,"ptr c-amber"));
+  root.appendChild(txtS(P[0]+jn[0]*sc+8,P[1]-jn[1]*sc-4,"sign +1","c-amber","start"));
+  root.appendChild(txtS(P[0]-jn[0]*sc-8,P[1]+jn[1]*sc+12,"sign −1","c-amber","end"));
+
+  var dg=g("c-ink3");
+  dg.appendChild(line(P[0],P[1],P[0]+jn[0]*sc,P[1],"dot3"));
+  dg.appendChild(line(P[0]+jn[0]*sc,P[1],P[0]+jn[0]*sc,P[1]-jn[1]*sc,"dot3"));
+  root.appendChild(dg);
+  root.appendChild(txtS(P[0]+jn[0]*sc/2-2,P[1]+13,"÷ viewport.z","c-ink3","middle"));
+  root.appendChild(txtS(P[0]+jn[0]*sc-6,P[1]-jn[1]*sc/2,"÷ viewport.w","c-ink3","end"));
+
+  /* arrow across */
+  arrow(root,304,146,358,146,"c-ink3",9,3.4);
+  root.appendChild(txtS(331,136,"× 2 − 1","c-ink2","middle"));
+
+  /* right: NDC box */
+  var cx=376, cy=46, cw=230, ch=200;
+  root.appendChild(rect(cx,cy,cw,ch,"",{fill:"var(--sheet-2)",stroke:"var(--ink)","stroke-width":"1"}));
+  root.appendChild(txtS(cx,cy-8,"gl_Position.xy — clip space −1…1","c-ink3","start"));
+  root.appendChild(txtS(cx-6,cy+ch+13,"−1,−1","c-ink3","start"));
+  root.appendChild(txtS(cx+cw+6,cy-2,"+1,+1","c-ink3","end"));
+  var ag=g("c-ink3");
+  ag.appendChild(line(cx+cw/2,cy,cx+cw/2,cy+ch,"dash"));
+  ag.appendChild(line(cx,cy+ch/2,cx+cw,cy+ch/2,"dash"));
+  root.appendChild(ag);
+
+  var Q=[cx+cw*0.46, cy+ch*0.44];
+  root.appendChild(circ(Q[0],Q[1],4.6,"pt c-ink"));
+  arrow(root,Q[0],Q[1],Q[0]+jn[0]*sc,Q[1]-jn[1]*sc,"c-amber",8,3.2);
+  arrow(root,Q[0],Q[1],Q[0]-jn[0]*sc,Q[1]+jn[1]*sc,"c-amber",8,3.2);
+  root.appendChild(circ(Q[0]+jn[0]*sc,Q[1]-jn[1]*sc,3.6,"ptr c-amber"));
+  root.appendChild(circ(Q[0]-jn[0]*sc,Q[1]+jn[1]*sc,3.6,"ptr c-amber"));
+
+  root.appendChild(txtS(cx+cw/2+6,cy+ch-6,"0","c-ink3","start"));
+  root.appendChild(txt(56,276,"same shape, remapped — the only thing × 2 − 1 changes is the origin","c-ink3","start"));
+  mount("f10",s);
+})();
+
+})();
+</script>
