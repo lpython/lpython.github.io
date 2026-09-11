@@ -1,0 +1,336 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>range-vert.glsl lab</title>
+<style>
+  :root{--bg:#0f0f13;--panel:#17171d;--line:#2a2a34;--fg:#d8d8e0;--dim:#8b8b99;
+        --miter:#4a9eff;--blend:#f0a33c;--vertical:#3ecf8e;--cap:#c471d6}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+       font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .wrap{display:flex;gap:12px;padding:12px;height:100vh}
+  .left{flex:1;display:flex;flex-direction:column;gap:10px;min-width:0}
+  .right{width:330px;flex:none;overflow:auto}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px}
+  svg{display:block;width:100%;height:100%;background:#101016;border-radius:4px}
+  .stage{flex:1;min-height:0}
+  h2{font-size:11px;margin:0 0 8px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+  table{border-collapse:collapse;width:100%;font-size:11px}
+  td{padding:1px 6px 1px 0;vertical-align:top}
+  td:first-child{color:var(--dim);width:120px}
+  td.num{text-align:right;width:90px}
+  .badge{display:inline-block;padding:1px 8px;border-radius:10px;color:#0f0f13;font-weight:700}
+  .cols{display:flex;gap:16px}
+  .cols>div{flex:1;min-width:0}
+  .bar{position:relative;height:22px;background:#0c0c11;border:1px solid var(--line);border-radius:3px;margin-top:6px}
+  .bar i{position:absolute;top:0;bottom:0;width:2px;background:var(--dim)}
+  .bar b{position:absolute;top:-1px;bottom:-1px;width:3px;background:#fff}
+  .bar span{position:absolute;top:50%;transform:translateY(-50%);font-size:9px;color:var(--dim);padding-left:4px}
+  .note{color:var(--dim);font-size:11px;margin-top:6px}
+</style>
+
+<div class="wrap">
+  <div class="left">
+    <div class="card stage"><svg id="svg" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMid meet"></svg></div>
+    <div class="card">
+      <h2>focused vertex &mdash; range-vert.glsl main()</h2>
+      <div class="cols">
+        <div><table id="t1"></table></div>
+        <div><table id="t2"></table></div>
+        <div>
+          <table id="t3"></table>
+          <div class="bar" id="bar">
+            <i id="bmin"></i><i id="bmax"></i><b id="bval"></b>
+            <span id="blab"></span>
+          </div>
+          <div class="note" id="branch"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="right"><div id="pane"></div></div>
+</div>
+
+<script type="module">
+import {Pane} from 'https://cdn.jsdelivr.net/npm/tweakpane@4.0.5/dist/tweakpane.min.js';
+
+// ---------------------------------------------------------------------------
+// GLSL helpers
+// ---------------------------------------------------------------------------
+const normalize = (x,y)=>{const L=Math.hypot(x,y);return L?[x/L,y/L]:[0,0]};
+const dot = (a,b)=>a[0]*b[0]+a[1]*b[1];
+const mul = (a,s)=>[a[0]*s,a[1]*s];
+// lerp.glsl:  t*b + (1-t)*a
+const lerp = (a,b,t)=>[t*b[0]+(1-t)*a[0], t*b[1]+(1-t)*a[1]];
+
+// ---------------------------------------------------------------------------
+// state
+// ---------------------------------------------------------------------------
+const U = {            // uniforms
+  vw: 1000, vh: 400, thickness: 20, pxStep: 40, id: 10,
+  amp0: -1.2, amp1: 1.2
+};
+const S = {            // stats() results, RAW (pre-deamp), one per bucket
+  avgPrev2: 0, avgPrev: 0, avgCurr: 0, avgNext: 0, avgNext2: 0,
+  sdevPrev: 0, sdevCurr: 0, sdevNext: 0,
+  prevIsNaN: false, nextIsNaN: false
+};
+const V = {            // view
+  focus: 'curr', lockAspect: true, showConstruction: true,
+  showQuads: true, showSamples: true, animate: false, animSpeed: 1
+};
+
+// ---------------------------------------------------------------------------
+// range-vert.glsl main(), lines 133-248
+// ---------------------------------------------------------------------------
+function vertex (id, avgPrevRaw, avgCurrRaw, avgNextRaw, sdevRaw, prevNaN, nextNaN) {
+  const ampRange = Math.abs(U.amp1 - U.amp0);
+  const deamp = v => (v - U.amp0) / (U.amp1 - U.amp0);     // deamp.glsl reamp()
+
+  const sdev    = sdevRaw / ampRange;                       // sdevCurr
+  const avgCurr = deamp(avgCurrRaw);
+  const avgPrev = deamp(avgPrevRaw);
+  const avgNext = deamp(avgNextRaw);
+
+  const pxN = U.pxStep / U.vh;                              // pxStep / viewport.w
+
+  const normalLeft  = normalize(-(avgCurr - avgPrev), pxN);
+  const normalRight = normalize(-(avgNext - avgCurr), pxN);
+  const bisec = normalize(normalLeft[0]+normalRight[0], normalLeft[1]+normalRight[1]);
+  const vert  = [0,1];
+
+  const bisecLen     = Math.abs(1/dot(normalLeft, bisec));
+  const vertRightLen = Math.abs(1/dot(normalRight, vert));
+  const vertLeftLen  = Math.abs(1/dot(normalLeft, vert));
+  const maxVertLen   = Math.max(vertLeftLen, vertRightLen);
+  const minVertLen   = Math.min(vertLeftLen, vertRightLen);
+
+  const vertSdev = 2 * sdev * U.vh / U.thickness;
+
+  let join, regime, t = null;
+  if (prevNaN)      { join = normalRight; regime = 'cap'; }
+  else if (nextNaN) { join = normalLeft;  regime = 'cap'; }
+  else if (vertSdev < maxVertLen) {
+    if (vertSdev > minVertLen) {
+      t = (vertSdev - minVertLen) / (maxVertLen - minVertLen);
+      join = lerp(mul(bisec,bisecLen), mul(vert,maxVertLen), t);
+      regime = 'blend';
+    } else { join = mul(bisec, bisecLen); regime = 'miter'; }
+  } else { join = mul(vert, vertSdev); regime = 'vertical'; }
+
+  // position -> pixels.  x: pxStep*(id+.5)   y: avgCurr * viewport.h
+  // displacement is sign * join * .5 * thickness / viewport.zw, which in px is
+  // simply join * .5 * thickness on both axes.
+  const cx = U.pxStep * (id + 0.5);
+  const cy = avgCurr * U.vh;
+  const dx = join[0] * 0.5 * U.thickness;
+  const dy = join[1] * 0.5 * U.thickness;
+
+  return {id, avgCurr, avgPrev, avgNext, sdev, normalLeft, normalRight, bisec,
+          bisecLen, vertLeftLen, vertRightLen, minVertLen, maxVertLen, vertSdev,
+          join, regime, t,
+          center:[cx,cy], plus:[cx+dx, cy+dy], minus:[cx-dx, cy-dy],
+          quadHeight: Math.abs(join[1])*U.thickness,
+          edgeSpanX: Math.abs(join[0])*U.thickness};
+}
+
+function solve () {
+  // joins at three consecutive ids -> two quads.
+  // each needs its own (prev, curr, next) triple, hence five avg values.
+  const prev = vertex(U.id-1, S.avgPrev2, S.avgPrev, S.avgCurr, S.sdevPrev, S.prevIsNaN, false);
+  const curr = vertex(U.id,   S.avgPrev,  S.avgCurr, S.avgNext, S.sdevCurr, S.prevIsNaN, S.nextIsNaN);
+  const next = vertex(U.id+1, S.avgCurr,  S.avgNext, S.avgNext2, S.sdevNext, false, S.nextIsNaN);
+  return {prev, curr, next};
+}
+
+// ---------------------------------------------------------------------------
+// render
+// ---------------------------------------------------------------------------
+const SVG = document.getElementById('svg');
+const NS = 'http://www.w3.org/2000/svg';
+const COL = {miter:'#4a9eff', blend:'#f0a33c', vertical:'#3ecf8e', cap:'#c471d6'};
+
+function el (n, a) { const e = document.createElementNS(NS, n);
+  for (const k in a) e.setAttribute(k, a[k]); return e; }
+
+function draw () {
+  const {prev, curr, next} = solve();
+  const all = [prev, curr, next];
+
+  while (SVG.firstChild) SVG.removeChild(SVG.firstChild);
+  const W = 1000, H = 560, PAD = 48;
+
+  // fit
+  const pts = all.flatMap(v => [v.center, v.plus, v.minus]);
+  let x0 = Math.min(...pts.map(p=>p[0])), x1 = Math.max(...pts.map(p=>p[0]));
+  let y0 = Math.min(...pts.map(p=>p[1])), y1 = Math.max(...pts.map(p=>p[1]));
+  const mx = Math.max((x1-x0)*0.15, U.pxStep*0.3), my = Math.max((y1-y0)*0.15, 4);
+  x0-=mx; x1+=mx; y0-=my; y1+=my;
+  let sx = (W-2*PAD)/(x1-x0), sy = (H-2*PAD)/(y1-y0);
+  if (V.lockAspect) { const s = Math.min(sx, sy); sx = sy = s; }
+  const ox = PAD + ((W-2*PAD) - (x1-x0)*sx)/2;
+  const oy = PAD + ((H-2*PAD) - (y1-y0)*sy)/2;
+  // GL y is bottom-up; SVG is top-down
+  const X = x => ox + (x - x0)*sx;
+  const Y = y => (H - oy) - (y - y0)*sy;
+
+  // grid: vertical lines at bucket centres
+  for (const v of all) {
+    SVG.appendChild(el('line',{x1:X(v.center[0]),y1:PAD*0.4,x2:X(v.center[0]),y2:H-PAD*0.4,
+      stroke:'#2a2a34','stroke-dasharray':'2 4'}));
+  }
+
+  // quads
+  if (V.showQuads) {
+    const quad = (a,b,fill) => {
+      const p = [a.plus,b.plus,b.minus,a.minus].map(q=>X(q[0])+','+Y(q[1])).join(' ');
+      SVG.appendChild(el('polygon',{points:p,fill:fill,'fill-opacity':0.20,
+        stroke:fill,'stroke-opacity':0.55,'stroke-width':1}));
+    };
+    quad(prev, curr, COL[prev.regime]);
+    quad(curr, next, COL[curr.regime]);
+  }
+
+  // join segments (the two vertices of each id)
+  for (const v of all) {
+    const focused = v === ({prev,curr,next})[V.focus];
+    SVG.appendChild(el('line',{x1:X(v.plus[0]),y1:Y(v.plus[1]),x2:X(v.minus[0]),y2:Y(v.minus[1]),
+      stroke:COL[v.regime],'stroke-width':focused?4:2,'stroke-linecap':'round',
+      'stroke-opacity':focused?1:0.55}));
+    for (const p of [v.plus, v.minus])
+      SVG.appendChild(el('circle',{cx:X(p[0]),cy:Y(p[1]),r:focused?4:3,
+        fill:COL[v.regime],'fill-opacity':focused?1:0.6}));
+    SVG.appendChild(el('circle',{cx:X(v.center[0]),cy:Y(v.center[1]),r:2.5,fill:'#fff','fill-opacity':.9}));
+    const tx = el('text',{x:X(v.center[0]),y:H-PAD*0.15,fill:'#8b8b99','font-size':11,
+      'text-anchor':'middle','font-family':'monospace'});
+    tx.textContent = 'id ' + v.id + '  ' + v.regime;
+    SVG.appendChild(tx);
+  }
+
+  // construction vectors at the focused vertex
+  if (V.showConstruction) {
+    const v = ({prev,curr,next})[V.focus];
+    const L = Math.min(W,H)*0.16;
+    const arrow = (vec, col, lab) => {
+      const ax = X(v.center[0]), ay = Y(v.center[1]);
+      const bx = ax + vec[0]*L, by = ay - vec[1]*L;
+      SVG.appendChild(el('line',{x1:ax,y1:ay,x2:bx,y2:by,stroke:col,'stroke-width':1.5,'stroke-opacity':.9}));
+      const t = el('text',{x:bx,y:by-4,fill:col,'font-size':10,'font-family':'monospace'});
+      t.textContent = lab; SVG.appendChild(t);
+    };
+    arrow(v.normalLeft,  '#ff6b6b', 'normalLeft');
+    arrow(v.normalRight, '#ffd166', 'normalRight');
+    arrow(v.bisec,       '#9b8cff', 'bisec');
+    arrow([0,1],         '#4a4a5a', 'vert');
+  }
+
+  readout(({prev,curr,next})[V.focus]);
+}
+
+function row (k, val) { return '<tr><td>'+k+'</td><td class="num">'+val+'</td></tr>'; }
+const f = (n,d=4)=> (n==null?'&mdash;':Number(n).toFixed(d));
+
+function readout (v) {
+  document.getElementById('t1').innerHTML =
+    row('id', v.id) + row('avgPrev', f(v.avgPrev)) + row('avgCurr', f(v.avgCurr)) +
+    row('avgNext', f(v.avgNext)) + row('sdev (norm)', f(v.sdev,6));
+  document.getElementById('t2').innerHTML =
+    row('normalLeft.x', f(v.normalLeft[0])) + row('normalLeft.y', f(v.normalLeft[1])) +
+    row('normalRight.x', f(v.normalRight[0])) + row('normalRight.y', f(v.normalRight[1])) +
+    row('bisec.x', f(v.bisec[0])) + row('bisec.y', f(v.bisec[1])) + row('bisecLen', f(v.bisecLen));
+  document.getElementById('t3').innerHTML =
+    '<tr><td>regime</td><td class="num"><span class="badge" style="background:'+COL[v.regime]+'">'+
+      v.regime+'</span></td></tr>' +
+    row('vertSdev', f(v.vertSdev,3)) + row('minVertLen', f(v.minVertLen,3)) +
+    row('maxVertLen', f(v.maxVertLen,3)) + row('blend t', v.t==null?'&mdash;':f(v.t,3)) +
+    row('join.x', f(v.join[0])) + row('join.y', f(v.join[1])) +
+    row('quad height px', f(v.quadHeight,2)) + row('edge lean px', f(v.edgeSpanX,2));
+
+  // threshold bar: where vertSdev sits relative to min/max VertLen
+  const hi = Math.max(v.maxVertLen, v.vertSdev) * 1.15 || 1;
+  const pct = x => Math.max(0, Math.min(100, 100*x/hi)) + '%';
+  document.getElementById('bmin').style.left = pct(v.minVertLen);
+  document.getElementById('bmax').style.left = pct(v.maxVertLen);
+  document.getElementById('bval').style.left = pct(v.vertSdev);
+  document.getElementById('blab').textContent = 'minVertLen | maxVertLen | white = vertSdev';
+  document.getElementById('branch').innerHTML =
+    v.regime === 'miter'    ? 'vertSdev &lt; minVertLen &rarr; <b>join = bisec * bisecLen</b> (pure miter)' :
+    v.regime === 'blend'    ? 'minVertLen &lt; vertSdev &lt; maxVertLen &rarr; <b>lerp(miter, vertical, t)</b>' :
+    v.regime === 'vertical' ? 'vertSdev &ge; maxVertLen &rarr; <b>join = vert * vertSdev</b> (join.x = 0)' :
+                              'neighbour flagged NaN &rarr; <b>join = normalLeft/Right</b> (end cap)';
+}
+
+// ---------------------------------------------------------------------------
+// presets
+// ---------------------------------------------------------------------------
+const PRESETS = {
+  'flat line': () => Object.assign(S, {avgPrev2:0,avgPrev:0,avgCurr:0,avgNext:0,avgNext2:0,
+    sdevPrev:0,sdevCurr:0,sdevNext:0,prevIsNaN:false,nextIsNaN:false}),
+  'gentle slope': () => Object.assign(S, {avgPrev2:-0.2,avgPrev:-0.1,avgCurr:0,avgNext:0.1,avgNext2:0.2,
+    sdevPrev:0,sdevCurr:0,sdevNext:0,prevIsNaN:false,nextIsNaN:false}),
+  'corner (miter spike)': () => Object.assign(S, {avgPrev2:0,avgPrev:0,avgCurr:1,avgNext:0,avgNext2:0,
+    sdevPrev:0,sdevCurr:0,sdevNext:0,prevIsNaN:false,nextIsNaN:false}),
+  'blend zone': () => Object.assign(S, {avgPrev2:-0.1,avgPrev:-0.05,avgCurr:0,avgNext:0.05,avgNext2:0.1,
+    sdevPrev:0.02,sdevCurr:0.022,sdevNext:0.02,prevIsNaN:false,nextIsNaN:false}),
+  'noisy (vertical)': () => Object.assign(S, {avgPrev2:0.1,avgPrev:-0.05,avgCurr:0.02,avgNext:-0.08,avgNext2:0.05,
+    sdevPrev:0.55,sdevCurr:0.60,sdevNext:0.52,prevIsNaN:false,nextIsNaN:false}),
+  'gap ahead (end cap)': () => Object.assign(S, {avgPrev2:-0.2,avgPrev:-0.1,avgCurr:0,avgNext:0,avgNext2:0,
+    sdevPrev:0,sdevCurr:0,sdevNext:0,prevIsNaN:false,nextIsNaN:true})
+};
+
+// ---------------------------------------------------------------------------
+// tweakpane
+// ---------------------------------------------------------------------------
+const pane = new Pane({container: document.getElementById('pane'), title: 'range-vert.glsl'});
+
+const fu = pane.addFolder({title:'uniforms'});
+fu.addBinding(U,'pxStep',{min:0.5,max:120,step:0.5});
+fu.addBinding(U,'thickness',{min:0.5,max:80,step:0.5});
+fu.addBinding(U,'vh',{label:'viewport h',min:50,max:1200,step:10});
+fu.addBinding(U,'vw',{label:'viewport w',min:100,max:4000,step:10});
+fu.addBinding(U,'amp0',{label:'amplitude min',min:-4,max:0,step:0.05});
+fu.addBinding(U,'amp1',{label:'amplitude max',min:0,max:4,step:0.05});
+fu.addBinding(U,'id',{min:0,max:200,step:1});
+
+const fs = pane.addFolder({title:'stats() — raw avg per bucket'});
+for (const k of ['avgPrev2','avgPrev','avgCurr','avgNext','avgNext2'])
+  fs.addBinding(S,k,{min:-1.2,max:1.2,step:0.005});
+
+const fd = pane.addFolder({title:'stats() — raw sdev'});
+for (const k of ['sdevPrev','sdevCurr','sdevNext'])
+  fd.addBinding(S,k,{min:0,max:1.2,step:0.005});
+
+const fn = pane.addFolder({title:'gap flags'});
+fn.addBinding(S,'prevIsNaN'); fn.addBinding(S,'nextIsNaN');
+
+const fv = pane.addFolder({title:'view'});
+fv.addBinding(V,'focus',{options:{prev:'prev',curr:'curr',next:'next'}});
+fv.addBinding(V,'lockAspect');
+fv.addBinding(V,'showQuads');
+fv.addBinding(V,'showConstruction');
+fv.addBinding(V,'animate',{label:'sweep sdevCurr'});
+fv.addBinding(V,'animSpeed',{min:0.1,max:4,step:0.1});
+
+const fp = pane.addFolder({title:'presets'});
+for (const name in PRESETS)
+  fp.addButton({title:name}).on('click',()=>{PRESETS[name](); pane.refresh(); draw();});
+
+pane.on('change', draw);
+
+// sdev sweep: walks sdevCurr up and back, so the miter -> blend -> vertical
+// transition can be watched continuously
+let phase = 0, last = performance.now();
+function tick (now) {
+  const dt = (now - last)/1000; last = now;
+  if (V.animate) {
+    phase += dt * V.animSpeed * 0.5;
+    S.sdevCurr = (Math.sin(phase) * 0.5 + 0.5) * 0.6;
+    S.sdevPrev = S.sdevNext = S.sdevCurr * 0.9;
+    pane.refresh();
+    draw();
+  }
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+PRESETS['gentle slope'](); pane.refresh(); draw();
+</script>
