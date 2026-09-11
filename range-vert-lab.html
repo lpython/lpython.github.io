@@ -241,7 +241,10 @@ function readout (v) {
     '<tr><td>regime</td><td class="num"><span class="badge" style="background:'+COL[v.regime]+'">'+
       v.regime+'</span></td></tr>' +
     row('vertSdev', f(v.vertSdev,3)) + row('minVertLen', f(v.minVertLen,3)) +
-    row('maxVertLen', f(v.maxVertLen,3)) + row('blend t', v.t==null?'&mdash;':f(v.t,3)) +
+    row('maxVertLen', f(v.maxVertLen,3)) +
+    row('blend window', f(v.maxVertLen - v.minVertLen, 4) +
+        ((v.maxVertLen - v.minVertLen) < 1e-9 ? '  &larr; ZERO' : '')) +
+    row('blend t', v.t==null?'&mdash;':f(v.t,3)) +
     row('join.x', f(v.join[0])) + row('join.y', f(v.join[1])) +
     row('quad height px', f(v.quadHeight,2)) + row('edge lean px', f(v.edgeSpanX,2));
 
@@ -252,11 +255,17 @@ function readout (v) {
   document.getElementById('bmax').style.left = pct(v.maxVertLen);
   document.getElementById('bval').style.left = pct(v.vertSdev);
   document.getElementById('blab').textContent = 'minVertLen | maxVertLen | white = vertSdev';
-  document.getElementById('branch').innerHTML =
+  const win = v.maxVertLen - v.minVertLen;
+  const degenerate = win < 1e-9
+    ? '<br><span style="color:#f0a33c">blend window is ZERO &mdash; the two slopes are symmetric so ' +
+      'vertLeftLen == vertRightLen. miter jumps straight to vertical; blend is unreachable. ' +
+      'Make avgPrev/avgNext asymmetric about avgCurr.</span>'
+    : '';
+  document.getElementById('branch').innerHTML = degenerate + (
     v.regime === 'miter'    ? 'vertSdev &lt; minVertLen &rarr; <b>join = bisec * bisecLen</b> (pure miter)' :
     v.regime === 'blend'    ? 'minVertLen &lt; vertSdev &lt; maxVertLen &rarr; <b>lerp(miter, vertical, t)</b>' :
     v.regime === 'vertical' ? 'vertSdev &ge; maxVertLen &rarr; <b>join = vert * vertSdev</b> (join.x = 0)' :
-                              'neighbour flagged NaN &rarr; <b>join = normalLeft/Right</b> (end cap)';
+                              'neighbour flagged NaN &rarr; <b>join = normalLeft/Right</b> (end cap)');
 }
 
 // ---------------------------------------------------------------------------
@@ -269,7 +278,11 @@ const PRESETS = {
     sdevPrev:0,sdevCurr:0,sdevNext:0,prevIsNaN:false,nextIsNaN:false}),
   'corner (miter spike)': () => Object.assign(S, {avgPrev2:0,avgPrev:0,avgCurr:1,avgNext:0,avgNext2:0,
     sdevPrev:0,sdevCurr:0,sdevNext:0,prevIsNaN:false,nextIsNaN:false}),
-  'blend zone': () => Object.assign(S, {avgPrev2:-0.1,avgPrev:-0.05,avgCurr:0,avgNext:0.05,avgNext2:0.1,
+  // blend needs an ASYMMETRIC corner: vertLeftLen != vertRightLen, or the
+  // window (minVertLen, maxVertLen) has zero width and the branch is unreachable
+  'blend zone (asym)': () => Object.assign(S, {avgPrev2:-0.48,avgPrev:-0.24,avgCurr:0,avgNext:0.72,avgNext2:1.1,
+    sdevPrev:0.12,sdevCurr:0.132,sdevNext:0.14,prevIsNaN:false,nextIsNaN:false}),
+  'symmetric (no blend)': () => Object.assign(S, {avgPrev2:-0.1,avgPrev:-0.05,avgCurr:0,avgNext:0.05,avgNext2:0.1,
     sdevPrev:0.02,sdevCurr:0.022,sdevNext:0.02,prevIsNaN:false,nextIsNaN:false}),
   'noisy (vertical)': () => Object.assign(S, {avgPrev2:0.1,avgPrev:-0.05,avgCurr:0.02,avgNext:-0.08,avgNext2:0.05,
     sdevPrev:0.55,sdevCurr:0.60,sdevNext:0.52,prevIsNaN:false,nextIsNaN:false}),
@@ -332,5 +345,5 @@ function tick (now) {
 }
 requestAnimationFrame(tick);
 
-PRESETS['gentle slope'](); pane.refresh(); draw();
+PRESETS['blend zone (asym)'](); pane.refresh(); draw();
 </script>
