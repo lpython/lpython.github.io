@@ -1,0 +1,1261 @@
+<title>Fade Shader Plates</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&display=swap">
+
+<style>
+:root{
+  --paper:#E7EBEC; --sheet:#F8FAFA; --sheet-2:#F0F4F4; --well:#DEE5E6;
+  --ink:#16232B; --ink-2:#485A64; --ink-3:#7A8A93;
+  --rule:#C6D0D3; --rule-2:#DAE1E3; --grid:#D2DBDD;
+  --blue:#1B5C9E; --teal:#0A7361; --amber:#9E6005; --plum:#8A3663;
+  --shadow:0 1px 0 rgba(22,35,43,.05);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0B1216; --sheet:#111B20; --sheet-2:#16222A; --well:#0D171C;
+    --ink:#DBE5E7; --ink-2:#9DAFB6; --ink-3:#6F838B;
+    --rule:#28383F; --rule-2:#1E2D35; --grid:#20313A;
+    --blue:#77B1EA; --teal:#3FC9B1; --amber:#F2B64E; --plum:#E093BE;
+    --shadow:0 1px 0 rgba(0,0,0,.3);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0B1216; --sheet:#111B20; --sheet-2:#16222A; --well:#0D171C;
+  --ink:#DBE5E7; --ink-2:#9DAFB6; --ink-3:#6F838B;
+  --rule:#28383F; --rule-2:#1E2D35; --grid:#20313A;
+  --blue:#77B1EA; --teal:#3FC9B1; --amber:#F2B64E; --plum:#E093BE;
+  --shadow:0 1px 0 rgba(0,0,0,.3);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Serif",Georgia,serif;
+  font-size:15.5px; line-height:1.62;
+  margin:0; padding-block:34px 60px; padding-left:20px; padding-right:20px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1160px; margin:0 auto; display:flex; flex-direction:column; gap:34px}
+
+/* ---------- masthead ---------- */
+.mast{display:flex; flex-direction:column; gap:14px; padding-bottom:26px; border-bottom:2px solid var(--ink)}
+.eyebrow{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; font-weight:500;
+  letter-spacing:.18em; text-transform:uppercase; color:var(--ink-3);
+}
+h1{
+  font-family:"IBM Plex Sans Condensed",system-ui,sans-serif; font-weight:700;
+  font-size:clamp(30px,5.6vw,52px); line-height:1.03; letter-spacing:-.012em;
+  margin:0; text-wrap:balance; max-width:20ch;
+}
+.standfirst{margin:0; max-width:66ch; color:var(--ink-2); font-size:17px}
+.standfirst b{color:var(--ink); font-weight:500}
+.vol{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; color:var(--ink-3);
+}
+.vol a{color:var(--blue)}
+
+.givens{
+  display:flex; flex-wrap:wrap; gap:0 26px; row-gap:8px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; color:var(--ink-2);
+  padding-top:4px;
+}
+.givens span b{color:var(--ink); font-weight:500}
+
+/* ---------- plates ---------- */
+.plate{
+  display:grid; grid-template-columns:minmax(0,330px) minmax(0,1fr);
+  gap:0 38px; align-items:start;
+  border-top:1px solid var(--rule); padding-top:22px;
+}
+@media (max-width:860px){ .plate{grid-template-columns:minmax(0,1fr); gap:20px} }
+.plate.wide{grid-template-columns:minmax(0,1fr)}
+
+/* grid/flex items default to min-width:auto and refuse to shrink below their
+   content, which lets wide figures push the page instead of scrolling in place */
+.col-text, .col-fig{min-width:0}
+.col-text{display:flex; flex-direction:column; gap:13px}
+.pnum{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; font-weight:600;
+  letter-spacing:.16em; color:var(--amber);
+}
+h2{
+  font-family:"IBM Plex Sans Condensed",system-ui,sans-serif; font-weight:600;
+  font-size:23px; line-height:1.14; letter-spacing:-.005em; margin:0; text-wrap:balance;
+}
+.col-text p{margin:0; color:var(--ink-2); overflow-wrap:anywhere}
+.col-text p b{color:var(--ink); font-weight:500}
+.col-text p i{color:var(--ink); font-style:italic}
+
+code, .code{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12.5px}
+p code{background:var(--sheet-2); padding:.06em .3em; border-radius:2px; color:var(--ink); font-size:12px}
+
+pre{
+  margin:0; background:var(--well); border-left:2px solid var(--rule);
+  padding:11px 13px; overflow-x:auto;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; line-height:1.62;
+  color:var(--ink-2); white-space:pre;
+}
+pre b{color:var(--ink); font-weight:500}
+pre .cm{color:var(--ink-3); font-style:italic}
+pre .hi{color:var(--plum); font-weight:500}
+
+.note{
+  border-left:2px solid var(--amber); padding:2px 0 2px 13px;
+  font-size:14px; color:var(--ink-2);
+}
+.note b{color:var(--ink); font-weight:500}
+.note.t{border-left-color:var(--teal)}
+
+/* colour key inline chips */
+.chip{
+  display:inline-flex; align-items:baseline; gap:5px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; color:var(--ink-2);
+}
+.chip::before{content:""; width:11px; height:2.5px; background:currentColor; align-self:center}
+.chip.b{color:var(--blue)} .chip.t{color:var(--teal)} .chip.a{color:var(--amber)} .chip.p{color:var(--plum)}
+.chip.k{color:var(--ink)} .chip.g{color:var(--ink-3)}
+.keys{display:flex; flex-wrap:wrap; gap:6px 18px; padding-top:2px}
+
+/* ---------- tables ---------- */
+.tblwrap{overflow-x:auto; background:var(--sheet); border:1px solid var(--rule-2); box-shadow:var(--shadow)}
+table.tbl{
+  border-collapse:collapse; width:100%; min-width:560px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px;
+  font-variant-numeric:tabular-nums;
+}
+table.tbl th{
+  text-align:left; font-weight:600; color:var(--ink-3); background:var(--sheet-2);
+  padding:7px 9px; border-bottom:1px solid var(--rule); white-space:nowrap;
+  font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+}
+table.tbl td{padding:5px 9px; border-bottom:1px solid var(--rule-2); color:var(--ink-2); white-space:nowrap}
+table.tbl tr:last-child td{border-bottom:0}
+table.tbl td.k{color:var(--ink); font-weight:500}
+table.tbl td.dim{color:var(--ink-3)}
+table.tbl .deg{color:var(--ink-3)}
+table.tbl .real{color:var(--teal); font-weight:500}
+table.tbl tr.band{background:var(--sheet-2)}
+table.tbl tr.mark td{background:color-mix(in srgb, var(--teal) 17%, transparent)}
+table.tbl tr.mark td:first-child{box-shadow:inset 3px 0 0 var(--teal)}
+table.tbl td.sep{border-left:1px solid var(--rule-2)}
+.tblcap{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; color:var(--ink-3);
+  margin:8px 0 0; line-height:1.5;
+}
+
+/* ---------- figure ---------- */
+.fig{
+  background:var(--sheet); border:1px solid var(--rule-2); box-shadow:var(--shadow);
+  padding:8px; overflow-x:auto;
+}
+.fig svg{display:block; width:100%; height:auto; min-width:440px}
+.figcap{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; color:var(--ink-3);
+  margin:8px 0 0; padding:0 2px; line-height:1.5;
+}
+.col-fig{display:flex; flex-direction:column}
+
+/* svg primitives */
+.v{stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round}
+.vh{fill:currentColor; stroke:none}
+.thin{stroke:currentColor; fill:none; stroke-width:1.2}
+.thk{stroke:currentColor; fill:none; stroke-width:3; stroke-linecap:round}
+.dash{stroke:currentColor; fill:none; stroke-width:1.2; stroke-dasharray:4 3.5}
+.dot3{stroke:currentColor; fill:none; stroke-width:1.2; stroke-dasharray:1.5 3; stroke-linecap:round}
+.grid{stroke:var(--grid); fill:none; stroke-width:1}
+.rul{stroke:var(--rule); fill:none; stroke-width:1}
+.pt{fill:currentColor; stroke:none}
+.ptr{fill:var(--sheet); stroke:currentColor; stroke-width:2}
+.fill{fill:currentColor; stroke:none}
+.lbl{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px;
+  fill:currentColor; stroke:none;
+}
+.lbl.sm{font-size:9.5px}
+.lbl.bg{font-size:12.5px; font-weight:500}
+.c-ink{color:var(--ink)} .c-ink2{color:var(--ink-2)} .c-ink3{color:var(--ink-3)}
+.c-blue{color:var(--blue)} .c-teal{color:var(--teal)} .c-amber{color:var(--amber)} .c-plum{color:var(--plum)}
+svg{color:var(--ink-2)}
+
+/* ---------- interactive ---------- */
+.ctl{
+  display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px;
+  background:var(--sheet-2); border:1px solid var(--rule-2); padding:11px 13px; margin-bottom:10px;
+}
+.ctl label{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); white-space:nowrap;
+}
+.ctl input[type=range]{flex:1 1 190px; min-width:150px; accent-color:var(--plum); height:22px}
+.ctl input[type=range]:focus-visible{outline:2px solid var(--amber); outline-offset:3px}
+.readout{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; color:var(--ink);
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+.readout em{color:var(--ink-3); font-style:normal}
+.readout b{font-weight:500}
+/* nowrap keeps the readout a fixed width so the slider track cannot resize
+   mid-drag; below the breakpoint the slider is on its own row anyway, so
+   wrapping there costs nothing and stops a long readout pushing the page */
+@media (max-width:560px){ .readout{white-space:normal} }
+/* stacked labels share one grid cell so the box never resizes mid-drag */
+.mode{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; font-weight:600;
+  letter-spacing:.13em; text-transform:uppercase; padding:3px 9px; white-space:nowrap;
+  border:1px solid currentColor; display:inline-grid; justify-items:center;
+}
+.mode > i{grid-area:1/1; font-style:normal; visibility:hidden}
+.mode[data-mode="a"] > i:nth-child(1),
+.mode[data-mode="b"] > i:nth-child(2),
+.mode[data-mode="c"] > i:nth-child(3){visibility:visible}
+.mode.ma{color:var(--amber)} .mode.mb{color:var(--teal)} .mode.mc{color:var(--plum)}
+
+/* ---------- closing ---------- */
+.close{border-top:2px solid var(--ink); padding-top:24px; display:flex; flex-direction:column; gap:16px}
+.close h2{font-size:26px}
+.edges{display:grid; grid-template-columns:repeat(auto-fit,minmax(258px,1fr)); gap:22px 34px}
+.edge{display:flex; flex-direction:column; gap:6px}
+.edge h3{
+  font-family:"IBM Plex Sans Condensed",system-ui,sans-serif; font-weight:600; font-size:16px;
+  margin:0; color:var(--ink);
+}
+.edge p{margin:0; font-size:14.5px; color:var(--ink-2); overflow-wrap:anywhere}
+.edge .tag{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-3);
+}
+footer{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; color:var(--ink-3);
+  border-top:1px solid var(--rule); padding-top:14px; line-height:1.7;
+}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <div class="eyebrow">gl-waveform · shader/fade-frag.glsl · fragment shading</div>
+  <h1>Fade Shader Plates</h1>
+  <p class="standfirst">Twelve plates, varyings to <code>gl_FragColor</code>. The vertex shader built a ribbon tall enough to hold ±2σ of every column. This shader carves the <b>density</b> out of that envelope with one Gaussian, and it does so with no anti-aliasing whatsoever — a fact worth understanding before the half-pixel columns arrive.</p>
+  <p class="vol">Volume II. Volume I — <a href="range-shader-plates.html">Range Shader Vector Plates</a> — ends where this begins.</p>
+  <div class="givens">
+    <span>figures drawn to:</span>
+    <span>viewport <b>660 × 220 px</b></span>
+    <span>thickness <b>24 px</b></span>
+    <span>normThickness <b>0.109</b></span>
+    <span>halfThickness <b>0.0545</b></span>
+    <span>plates 10–11 use the real defaults <b>thickness 2 px · pxStep 0.5</b></span>
+  </div>
+</header>
+
+<!-- 1 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 01</div>
+    <h2>What crosses the boundary</h2>
+    <p>Five varyings and two uniforms are everything the fragment shader gets. It never sees a texture, a sample, or an <code>id</code>.</p>
+<pre>varying vec4  <b>fragColor</b>;
+varying float <b>normThickness</b>;
+varying vec3  <b>statsLeft</b>, <b>statsRight</b>,
+              <b>statsPrevRight</b>, <b>statsNextLeft</b>;</pre>
+    <p>Each <code>vec3</code> is packed <code>(avg, sdev, nanFlag)</code> at <code>range-vert.glsl:233-237</code>. The one thing to hold on to is that <b>everything is a fraction of viewport height</b>:</p>
+<pre><span class="cm">// vertex: normalised by ampRange</span>
+sdev = statsCurr.y / ampRange;
+avg  = deamp(avg, amplitude);
+normThickness = thickness/viewport.w;
+
+<span class="cm">// fragment: the same ruler</span>
+y = (gl_FragCoord.y - viewport.y)
+    / viewport.w;</pre>
+    <div class="note"><code>dist</code>, <code>sdev</code> and <code>halfThickness</code> all live in that one unit. That is why <code>dist/sdev</code> is a pure number, and why the Gaussian needs no scale factor anywhere.</div>
+  </div>
+  <div class="col-fig"><div class="fig" id="f1"></div>
+    <p class="figcap">The handoff. Geometry was volume I's subject; alpha is this one's. <code>float x</code> is computed at line 34 and never read — the only dead line in the file.</p>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 02</div>
+    <h2>Four vertices, two positions</h2>
+    <p>The buffer pushes four vertices per <code>id</code>. But look at what <code>gl_Position</code> actually consumes:</p>
+<pre>position = vec2(pxStep*(<b>id</b>+.5)/vw,
+                avgCurr);
+position += <b>sign</b> * join * .5
+            * thickness / viewport.zw;</pre>
+    <p><code>side</code> appears <i>nowhere</i> in that chain. It is read only at lines 238–241, where it swings which neighbours land in the varyings. So the four vertices of a column collapse onto <b>two points</b> — and not approximately: the arithmetic is bit-identical, so they are exactly coincident.</p>
+    <div class="note">Two coincident vertices is the definition of a degenerate triangle. Everything in the next plate follows from this one fact.</div>
+    <div class="keys">
+      <span class="chip a">side = −1</span><span class="chip p">side = +1</span><span class="chip g">same point</span>
+    </div>
+  </div>
+  <div class="col-fig"><div class="fig" id="f2"></div>
+    <p class="figcap">Left: as the buffer lists them. Right: where they actually land. The split in volume I's Plate 01 figure was a drafting device — this is the truth.</p>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="plate wide">
+  <div class="col-text" style="max-width:74ch">
+    <div class="pnum">PLATE 03</div>
+    <h2>Two of every four triangles are degenerate</h2>
+    <p>A triangle strip emits <code>tri_k = (v_k, v_k+1, v_k+2)</code> for every <code>k</code>. Walk the strip and classify each triangle by whether any two of its vertices share a position. The pattern has period four — <b>D D R R</b> — so exactly half the triangles have zero area.</p>
+    <div class="note">It is tempting to sample a six-triangle window and conclude four-in-six. That window straddles two degenerate runs and over-counts them; the steady-state rate is the period-4 pattern below. For <i>n</i> columns: 4<i>n</i> vertices, 4<i>n</i>−2 triangles, 2<i>n</i> degenerate.</div>
+  </div>
+  <div class="col-fig" style="margin-top:14px">
+    <div class="fig" id="f3"></div>
+    <p class="figcap">Degenerate triangles are drawn as the line segments they collapse to. They are emitted, clipped, and discarded before rasterisation — vertex cost, zero fragment cost.</p>
+    <div style="height:16px"></div>
+    <div class="tblwrap"><table class="tbl" id="t3"></table></div>
+    <p class="tblcap">Generated by walking the strip, not transcribed. Position is written symbolically: <code>x2,T</code> is column 2's top vertex. A triangle is degenerate when any two of its three positions are equal.</p>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="plate wide">
+  <div class="col-text" style="max-width:74ch">
+    <div class="pnum">PLATE 04</div>
+    <h2>Everything lined up</h2>
+    <p>Attributes on the left, vertex-shader outputs on the right, one row per vertex. <code>s<i>n</i></code> abbreviates the stats triple for column <i>n</i>. The varying columns are evaluated straight from the source:</p>
+<pre>statsRight     = side &lt; 0. ? statsCurr  : statsNext;
+statsLeft      = side &lt; 0. ? statsPrev  : statsCurr;
+statsPrevRight = side &lt; 0. ? statsPrev2 : statsPrev;
+statsNextLeft  = side &lt; 0. ? statsNext  : statsNext2;</pre>
+    <p>The highlighted band is one real quad — the two <code>side=+1</code> vertices of column 0 and the two <code>side=−1</code> vertices of column 1. Read the four varying columns down that band: <b>every row is identical</b>. <code>(s0, s1, s−1, s2)</code>, four times.</p>
+    <div class="note t">That is the whole purpose of <code>side</code>. A varying that is equal at every corner interpolates to that same value everywhere inside — so the stats arrive at the fragment shader <b>flat</b>, with no gradient. GLSL ES 1.00 has no <code>flat</code> qualifier; this is how you get one anyway. The price is double the vertices and half the triangles thrown away.</div>
+    <p>Note also what the quad carries: columns <b>−1, 0, 1 and 2</b>. A four-wide window, from a two-wide quad. Plate 10 is where that extra reach earns its keep.</p>
+  </div>
+  <div class="col-fig" style="margin-top:14px">
+    <div class="tblwrap"><table class="tbl" id="t4"></table></div>
+    <p class="tblcap">Rows 2–5 shaded: the four vertices of the quad spanning columns 0→1. Degenerate-triangle vertices are not excluded from the table — every vertex is shaded regardless of what triangle consumes it.</p>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 05</div>
+    <h2>A Gaussian used as opacity</h2>
+    <p>Set aside the statistics for a moment. The shape is</p>
+<pre>alpha = exp(−½ · (d/σ)²)</pre>
+    <p>a bell that is <b>1.0 at d = 0</b> and falls away. σ is not a height — it is the <i>horizontal ruler</i>. Distances only ever enter as <code>d/σ</code>, so the curve has exactly one shape; σ stretches it.</p>
+    <p>The landmarks are worth memorising, because they are the same three numbers for every σ:</p>
+<pre>d = 1σ  →  alpha = <b>0.607</b>
+d = 2σ  →  alpha = <b>0.135</b>
+d = 3σ  →  alpha = <b>0.011</b></pre>
+    <p>The meaning in this shader: <code>d</code> is how far a pixel sits from its column's mean, and σ is that column's standard deviation. So opacity tracks <b>how likely a sample from that column landed at this height</b>. Dense where the samples cluster, transparent in the tails.</p>
+    <div class="note">This is not a filter in the signal-processing sense despite the name. Nothing is convolved. It is a density ramp evaluated per fragment.</div>
+  </div>
+  <div class="col-fig">
+    <div class="ctl">
+      <label for="sg5">σ</label>
+      <input type="range" id="sg5" min="0.02" max="0.20" step="0.001" value="0.070">
+      <span class="readout" id="ro5"></span>
+    </div>
+    <div class="fig" id="f5"></div>
+    <p class="figcap">Drag σ. The curve's <i>shape</i> never changes — only the ruler beneath it. The three landmark heights are fixed for all σ.</p>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 06</div>
+    <h2>The <code>pdf()</code> scaffolding cancels</h2>
+    <p>The source does not write that <code>exp</code>. It builds a true probability density — the kind that integrates to 1 — and then divides it by its own peak:</p>
+<pre>pdf(x,m,v) = exp(−½(x−m)²/v)
+             / sqrt(<span class="hi">TAU*v</span>);
+
+pdfCoef = pdf(0., 0., σ²);
+  <span class="cm">// = 1 / sqrt(TAU*σ²)</span>
+dist = pdf(dist, 0., σ²) / pdfCoef;</pre>
+    <p>The <code>sqrt(2πσ²)</code> is in the numerator and the denominator. It cancels exactly, leaving the bare <code>exp</code> from Plate 05. Two <code>exp</code>, two <code>sqrt</code>, a <code>pow</code> and a divide, to compute one <code>exp</code>.</p>
+    <p>It is not a bug — the result is right. But it obscures the intent, and it explains the comment <code>// pdfCoef makes sure pdf is normalized</code>: the author wanted a <b>peak</b> of 1, not an <i>area</i> of 1, and got there the long way.</p>
+    <div class="note">The σ = 0 branch is a Dirac delta: <code>variance == 0.</code> returns <code>x == mean ? 9999. : 0.</code> Both numerator and denominator hit 9999 when <code>d = 0</code>, so the ratio is 1 — and 0 everywhere else. <b>9999 is standing in for infinity</b>, and it cancels the same way.</div>
+  </div>
+  <div class="col-fig"><div class="fig" id="f6"></div>
+    <p class="figcap">Top: the raw <code>pdf</code>, whose peak <i>changes</i> with σ — unusable as opacity. Bottom: after dividing by <code>pdfCoef</code>. Same three curves, all peaking at 1.</p>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 07</div>
+    <h2>The envelope and the fill</h2>
+    <p>This is the thesis of both volumes. Volume I derived</p>
+<pre>vertSdev = 2. * sdev
+           * viewport.w / thickness;</pre>
+    <p>and used it to make the ribbon <b>tall enough to hold ±2σ</b>. That is geometry, and geometry is binary — a pixel is inside the quad or it is not.</p>
+    <p>This shader supplies what geometry cannot: <i>how much</i> of the column's mass is at each height inside that envelope. The quad is the container; the Gaussian is the contents.</p>
+    <p>Which is also why 2σ and not 1σ or 3σ. At 2σ the alpha has already fallen to 0.135 — dim enough that the quad's hard edge is nearly invisible. Size it to 1σ and you would clip the ribbon at alpha 0.607, a plainly visible cut. Size it to 3σ and you would pay for a band of near-zero pixels.</p>
+    <div class="keys">
+      <span class="chip a">quad edge (±2σ)</span><span class="chip p">alpha</span><span class="chip k">avg</span>
+    </div>
+  </div>
+  <div class="col-fig"><div class="fig" id="f7"></div>
+    <p class="figcap">Three columns of differing σ. The envelope tracks σ because the vertex shader made it; the fill tracks σ because this shader does. Both are the same number.</p>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 08</div>
+    <h2>Four blocks that cannot both fire</h2>
+    <p>The body is four <code>if</code> blocks — above/below × right/left — each one <code>gl_FragColor.a *= fade(...)</code>. They are sequential, not <code>else if</code>, so they read as though a fragment could be multiplied four times.</p>
+    <p>It cannot. Take blocks 1 and 2:</p>
+<pre><span class="cm">// block 1</span>
+y &gt; avgRight + ht && avgRight &gt; avgLeft
+<span class="cm">// block 2</span>
+y &gt; avgLeft  + ht && avgLeft &gt; avgRight</pre>
+    <p>The second conditions are negations of each other. Every other pairing contradicts either on the <code>y</code> comparison or on the avg ordering — blocks 1 and 3 need <code>y</code> both above and below the same centre; 2 and 3 need <code>y &gt; avgLeft+ht</code> and <code>y &lt; avgRight−ht</code> with <code>avgLeft &gt; avgRight</code>, which is empty. <b>At most one block runs.</b></p>
+    <p>What the nesting decides is <i>whose</i> Gaussian to use. A column that is a local maximum owns the pixels above it. A column that is not defers to the taller neighbour — whose quad also covers this pixel, and whose distribution is the honest one there.</p>
+    <div class="note">This is why the varyings reach four columns wide. Deciding "am I a local max" needs a neighbour on each side, and the deferral then needs that neighbour's stats in hand.</div>
+  </div>
+  <div class="col-fig"><div class="fig" id="f8"></div>
+    <p class="figcap">The pixel marked ◆ sits above both centrelines. Left column is the taller, so block 2 claims it and fades against <code>statsLeft</code>; blocks 1, 3 and 4 are all excluded by their guards.</p>
+  </div>
+</section>
+
+<!-- 9 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 09</div>
+    <h2>There is no anti-aliasing</h2>
+    <p>Not reduced, not cheap — absent. No <code>smoothstep</code>. No <code>fwidth</code> or <code>dFdx</code> (<code>OES_standard_derivatives</code> is never enabled). No <code>discard</code>. No <code>antialias</code> on the context. Coverage is never computed.</p>
+    <p>The consequence is at the band edge. Inside <code>±halfThickness</code> the fragment keeps full alpha, untouched. One pixel outside, <code>fade()</code> takes over — but it does not resume at 1.0. It resumes at</p>
+<pre>exp(−½ · (halfThickness/σ)²)</pre>
+    <p>which is a <b>step discontinuity</b>. When σ ≈ halfThickness that is a drop to 0.607 across one pixel boundary; you can see it.</p>
+    <p>The outer falloff is the opposite case, and it is where the shader gets away with it: the Gaussian reaches ~0 well before the quad's own edge, so the geometric silhouette is never visible. <i>That is not anti-aliasing</i> — it is a hard edge hidden under a value that happens to be near zero. Move σ up until 2σ exceeds the quad and the edge reappears.</p>
+  </div>
+  <div class="col-fig">
+    <div class="ctl">
+      <label for="sg9">σ</label>
+      <input type="range" id="sg9" min="0.015" max="0.13" step="0.0005" value="0.055">
+      <span class="readout" id="ro9"></span>
+      <span class="mode mb" id="md9" data-mode="b"><i>smooth</i><i>visible step</i><i>hard cut</i></span>
+    </div>
+    <div class="fig" id="f9"></div>
+    <p class="figcap">Alpha along a vertical cut through one column. The flat top is the untouched band; the drop at <code>±ht</code> is the discontinuity. Watch it grow as σ shrinks.</p>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 10</div>
+    <h2>Half-pixel columns are the normal case</h2>
+    <p>Not an edge case. <code>index.js:547</code>:</p>
+<pre>pxStep = Math.max(
+  viewport[2] / span,
+  this.pxStep || <b>.5</b>
+);
+<span class="cm">// pxStep affects jittering on
+// panning, .5 is good value</span></pre>
+    <p>Whenever the data is wider than twice the viewport, columns are <b>half a pixel</b> wide — and that is exactly the regime where the range shader is selected (<code>pxPerSample &lt;= 1</code>, line 684).</p>
+    <p>A fragment exists only if a pixel's <b>centre</b> is covered. With two quads per pixel, one wins and one is never shaded. At exactly 0.5 the arithmetic is stark: pixel <i>p</i>'s centre is <code>p+0.5</code>, so it lands in column <code>2p+1</code>. <b>Every even column is dropped, always.</b> Deterministic decimation, not noise.</p>
+    <div class="note">The saving grace is Plate 04. The surviving quad's varyings are flat and span columns <i>i−1…i+2</i>, so the discarded column's stats still reach the fragment shader — as a neighbour. The mean you see is sampled at half rate; the <i>envelope</i> is not.</div>
+    <p>And the comment now reads differently. At exactly 0.5, centres land precisely on column boundaries, so which column wins is decided by the fill rule — and panning slides that phase. Locking to 0.5 makes the decimation phase <i>stable</i> instead of a slowly crawling moiré. That is a reading of the author's intent, not a claim from the source.</p>
+  </div>
+  <div class="col-fig">
+    <div class="ctl">
+      <label for="px10">pxStep</label>
+      <input type="range" id="px10" min="0.5" max="3" step="0.05" value="0.5">
+      <span class="readout" id="ro10"></span>
+    </div>
+    <div class="fig" id="f10"></div>
+    <p class="figcap">Top band: columns as the vertex shader emits them. Dots: pixel centres. Bottom band: which column each pixel actually samples. Greyed columns produce no fragment anywhere.</p>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 11</div>
+    <h2>Is it run more than once per pixel?</h2>
+    <p>Yes — but from overdraw, not from multisampling.</p>
+    <p><code>depth.enable = false</code>, nothing is discarded, and blending is on. So <b>every triangle covering a pixel shades it</b> and composites. Sheared quads at steep joins overlap in x; the multipass overlay redraws the same geometry shifted by <code>passId</code>. Each of those is another full invocation.</p>
+    <p>The blend function is the interesting part:</p>
+<pre>srcRGB   : src alpha
+dstRGB   : one minus src alpha
+srcAlpha : <b>one minus dst alpha</b>
+dstAlpha : one</pre>
+    <p>That alpha row is a <b>union</b>, not a sum: <code>a' = a + a(1−a)</code>. Two coincident fragments at α = 0.5 give 0.75, not 1.0. It saturates toward 1 and never exceeds it. That is the closest thing to coverage integration in the pipeline — and it is an approximation, not a box filter.</p>
+    <div class="note">MSAA would not change any of this. The fragment shader runs once per <i>pixel</i> and the result is broadcast to every covered sample; only coverage is evaluated per-sample. <code>y &gt; avg + halfThickness</code> is still tested at one point. MSAA smooths the quad's silhouette — the one edge already hidden by the falloff — and does nothing for the band discontinuity of Plate 09.</div>
+    <p>Derivative helper invocations do not apply either; with no <code>fwidth</code>, there is no 2×2 quad to co-execute. And the degenerate triangles of Plate 03 cost vertex work but produce zero fragments.</p>
+  </div>
+  <div class="col-fig"><div class="fig" id="f11"></div>
+    <p class="figcap">Union versus sum, over repeated coincident fragments. The dashed line is what a true coverage sum would do; the solid curve is what this blend does.</p>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="close">
+  <h2>Edges of the reading</h2>
+  <div class="edges">
+    <div class="edge">
+      <span class="tag">dead code</span>
+      <h3>The unused fragment x</h3>
+      <p><code>float x = (gl_FragCoord.x - viewport.x) / viewport.z;</code> at line 34 is computed and never read. Harmless — the compiler drops it — but it hints at an earlier version that varied alpha horizontally as well as vertically.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">redundancy</span>
+      <h3>Two pdfs where one exp would do</h3>
+      <p>Per Plate 06 the normalisation cancels identically. Writing <code>exp(-.5*d*d/(sdev*sdev))</code> is the same number in one instruction, and states the intent. The <code>pdf()</code> helper would then have no callers.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">artifact</span>
+      <h3>The band edge is discontinuous</h3>
+      <p>Alpha jumps from 1.0 to <code>exp(−½(ht/σ)²)</code> at <code>±halfThickness</code>. A <code>smoothstep</code> over one <code>fwidth</code> would close it, at the cost of requiring the derivatives extension.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">sampling</span>
+      <h3>Half the columns never rasterise</h3>
+      <p>At the default <code>pxStep = 0.5</code> every even column is dropped by pixel-centre coverage. The four-wide varying window softens this for the envelope but not for the mean itself.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">nuance</span>
+      <h3>The nan flag short-circuits everything</h3>
+      <p><code>fade()</code> returns 0 the moment <code>stats.z == -1.</code>, before any arithmetic. Gaps in the data punch fully transparent holes rather than fading — the only place in the file where alpha is set rather than multiplied toward.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">nuance</span>
+      <h3>σ = 0 makes the fade a hard gate</h3>
+      <p>The Dirac branch returns 1 only where <code>d == 0</code> exactly. But <code>fade()</code> is only ever called from outside the band, where <code>d &gt; halfThickness &gt; 0</code> — so a zero-variance column contributes nothing above or below its band. Correct, and reachable only by that reasoning.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">context</span>
+      <h3>Volume I's join limit is this shader's premise</h3>
+      <p>The three-way branch existed to make the ribbon exactly <code>2σ</code> tall. If you changed that constant you would have to retune nothing here — the Gaussian adapts — but the hidden outer edge of Plate 09 would stop being hidden.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">counting</span>
+      <h3>Two in four, not four in six</h3>
+      <p>The degenerate fraction is exactly one half in steady state. A six-triangle window that begins and ends on a degenerate run reports 4/6; the period-4 pattern <b>D D R R</b> is the real rate. Plate 03 walks it rather than sampling it.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Source: dy/gl-waveform — shader/fade-frag.glsl, shader/range-vert.glsl, index.js.<br>
+  Tables in Plates 03 and 04 are generated at load by walking the strip and evaluating the varying expressions, not transcribed by hand.
+</footer>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+var NS="http://www.w3.org/2000/svg";
+
+function el(n,a,kids){
+  var e=document.createElementNS(NS,n);
+  if(a) for(var k in a){ if(a[k]!=null) e.setAttribute(k,a[k]); }
+  if(kids){ (kids.length!==undefined?kids:[kids]).forEach(function(c){ if(c) e.appendChild(c); }); }
+  return e;
+}
+function svg(w,h){
+  var s=el("svg",{viewBox:"0 0 "+w+" "+h,"aria-hidden":"true"});
+  s.setAttribute("preserveAspectRatio","xMidYMid meet");
+  return s;
+}
+function mount(id,s){ var n=document.getElementById(id); if(n) n.appendChild(s); return n; }
+function g(cls){ return el("g",{"class":cls||null}); }
+function line(x1,y1,x2,y2,cls){ return el("line",{x1:r(x1),y1:r(y1),x2:r(x2),y2:r(y2),"class":cls}); }
+function poly(pts,cls){ return el("polyline",{points:pts.map(function(p){return r(p[0])+","+r(p[1]);}).join(" "),"class":cls}); }
+function pgon(pts,cls,extra){ var a={points:pts.map(function(p){return r(p[0])+","+r(p[1]);}).join(" "),"class":cls}; if(extra) for(var k in extra) a[k]=extra[k]; return el("polygon",a); }
+function circ(x,y,rr,cls){ return el("circle",{cx:r(x),cy:r(y),r:rr,"class":cls}); }
+function rect(x,y,w,h,cls,extra){ var a={x:r(x),y:r(y),width:r(w),height:r(h),"class":cls}; if(extra) for(var k in extra) a[k]=extra[k]; return el("rect",a); }
+function path(d,cls,extra){ var a={d:d,"class":cls}; if(extra) for(var k in extra) a[k]=extra[k]; return el("path",a); }
+function r(v){ return Math.round(v*100)/100; }
+
+function txt(x,y,s,cls,anchor){
+  var t=el("text",{x:r(x),y:r(y),"class":"lbl "+(cls||""),"text-anchor":anchor||"start"});
+  t.textContent=s; return t;
+}
+function txtB(x,y,s,cls,anchor){ var t=txt(x,y,s,cls,anchor); t.setAttribute("class","lbl bg "+(cls||"")); return t; }
+function txtS(x,y,s,cls,anchor){ var t=txt(x,y,s,cls,anchor); t.setAttribute("class","lbl sm "+(cls||"")); return t; }
+
+function arrow(parent,x1,y1,x2,y2,cls,head,w){
+  head=head||9; w=w||3.6;
+  var dx=x2-x1, dy=y2-y1, L=Math.hypot(dx,dy);
+  if(L<0.001) return;
+  var ux=dx/L, uy=dy/L, bx=x2-ux*head, by=y2-uy*head;
+  var gg=g(cls);
+  gg.appendChild(line(x1,y1,bx,by,"v"));
+  gg.appendChild(pgon([[x2,y2],[bx-uy*w,by+ux*w],[bx+uy*w,by-ux*w]],"vh"));
+  parent.appendChild(gg);
+}
+function dimArrow(parent,x1,y1,x2,y2,cls){
+  var gg=g(cls);
+  var dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy); if(L<.001) return;
+  var ux=dx/L,uy=dy/L,h=6,w=2.6;
+  gg.appendChild(line(x1+ux*h,y1+uy*h,x2-ux*h,y2-uy*h,"thin"));
+  gg.appendChild(pgon([[x1,y1],[x1+ux*h-uy*w,y1+uy*h+ux*w],[x1+ux*h+uy*w,y1+uy*h-ux*w]],"vh"));
+  gg.appendChild(pgon([[x2,y2],[x2-ux*h-uy*w,y2-uy*h+ux*w],[x2-ux*h+uy*w,y2-uy*h-ux*w]],"vh"));
+  parent.appendChild(gg);
+}
+
+/* ============ shared model ============ */
+var NCOL = 5;
+function buildVerts(n){
+  var V=[];
+  for(var i=0;i<n;i++){
+    V.push({id:i,sign:+1,side:-1});
+    V.push({id:i,sign:-1,side:-1});
+    V.push({id:i,sign:+1,side:+1});
+    V.push({id:i,sign:-1,side:+1});
+  }
+  return V;
+}
+/* position depends ONLY on (id, sign) -- side never enters gl_Position */
+function posKey(v){ return "x"+v.id+","+(v.sign>0?"T":"B"); }
+/* varyings, range-vert.glsl:238-241 */
+function sL (v){ return "s"+(v.side<0 ? v.id-1 : v.id  ); }
+function sR (v){ return "s"+(v.side<0 ? v.id   : v.id+1); }
+function sPR(v){ return "s"+(v.side<0 ? v.id-2 : v.id-1); }
+function sNL(v){ return "s"+(v.side<0 ? v.id+1 : v.id+2); }
+
+function gauss(d,s){ return Math.exp(-0.5*(d/s)*(d/s)); }
+
+/* ============ PLATE 01 ============ */
+(function(){
+  var W=560,H=250,s=svg(W,H);
+  var midX=W*0.46;
+
+  // divider
+  var dv=g("c-amber");
+  dv.appendChild(line(midX,16,midX,H-30,"dash"));
+  dv.appendChild(txtS(midX-7,H-16,"vertex shader","c-ink3","end"));
+  dv.appendChild(txtS(midX+7,H-16,"fragment shader","c-ink3","start"));
+  s.appendChild(dv);
+
+  // left: the ribbon
+  var lx=26, lw=midX-56, ly=40, lh=120;
+  var cols=[0.62,0.30,0.72,0.44];
+  var sd=[0.055,0.10,0.04,0.085];
+  var pts=cols.map(function(a,i){ return [lx+lw*(i+0.5)/cols.length, ly+lh*(1-a)]; });
+  var rib=g("c-blue");
+  var top=[],bot=[];
+  pts.forEach(function(p,i){ top.push([p[0],p[1]-14-sd[i]*130]); bot.push([p[0],p[1]+14+sd[i]*130]); });
+  rib.appendChild(pgon(top.concat(bot.slice().reverse()),"fill",{opacity:0.15}));
+  rib.appendChild(poly(pts,"v"));
+  pts.forEach(function(p){ rib.appendChild(circ(p[0],p[1],2.6,"pt")); });
+  s.appendChild(rib);
+  s.appendChild(txtS(lx,ly-12,"the ribbon, already positioned","c-ink3"));
+
+  // varyings crossing
+  var names=["fragColor","normThickness","statsLeft","statsRight","statsPrevRight","statsNextLeft"];
+  var y0=42, dy=25;
+  names.forEach(function(nm,i){
+    var y=y0+i*dy;
+    var cls = i<2 ? "c-ink3" : "c-teal";
+    arrow(s, midX-16, y, midX+26, y, cls, 8, 3.2);
+    s.appendChild(txt(midX+34,y+4,nm,cls));
+  });
+  s.appendChild(txtS(midX+34,y0-14,"5 varyings + 2 uniforms","c-ink3"));
+
+  // unit note
+  var uy=y0+6*dy+8;
+  var ug=g("c-plum");
+  ug.appendChild(line(midX+34,uy,W-20,uy,"thin"));
+  s.appendChild(ug);
+  s.appendChild(txtS(midX+34,uy+15,"all in fractions of viewport height","c-plum"));
+
+  mount("f1",s);
+})();
+
+/* ============ PLATE 02 ============ */
+(function(){
+  var W=560,H=250,s=svg(W,H);
+  var V=buildVerts(1);
+
+  // left: as listed
+  var lx=40, ly=48, dy=38;
+  s.appendChild(txtS(lx,26,"as the buffer lists them","c-ink3"));
+  V.forEach(function(v,k){
+    var y=ly+k*dy;
+    var cls = v.side<0 ? "c-amber":"c-plum";
+    var gg=g(cls);
+    gg.appendChild(circ(lx,y,5,"ptr"));
+    s.appendChild(gg);
+    s.appendChild(txt(lx+14,y+4,"id "+v.id+"   sign "+(v.sign>0?"+1":"-1")+"   side "+(v.side>0?"+1":"-1"),cls));
+  });
+
+  // right: where they land
+  var rx=W-120, ty=70, by=190;
+  s.appendChild(txtS(rx-40,26,"where they land","c-ink3"));
+  var col=g("c-ink3");
+  col.appendChild(line(rx,ty-18,rx,by+18,"dot3"));
+  s.appendChild(col);
+
+  // the two real points
+  [[ty,"sign +1","T"],[by,"sign -1","B"]].forEach(function(p){
+    var gg=g("c-ink");
+    gg.appendChild(circ(rx,p[0],6.5,"pt"));
+    s.appendChild(gg);
+    s.appendChild(txt(rx+16,p[0]+4,p[1],"c-ink"));
+  });
+
+  // arrows from the four listings to the two points
+  V.forEach(function(v,k){
+    var y=ly+k*dy;
+    var ty2 = v.sign>0 ? ty : by;
+    var cls = v.side<0 ? "c-amber":"c-plum";
+    var gg=g(cls);
+    gg.appendChild(path("M"+(lx+215)+","+y+" C"+(lx+280)+","+y+" "+(rx-60)+","+ty2+" "+(rx-9)+","+ty2,"dash"));
+    s.appendChild(gg);
+  });
+
+  s.appendChild(txtS(rx-46,by+42,"4 vertices → 2 points","c-ink"));
+  s.appendChild(txtS(rx-46,by+56,"exactly coincident","c-ink3"));
+
+  mount("f2",s);
+})();
+
+/* ============ PLATE 03 ============ */
+(function(){
+  var V=buildVerts(NCOL);
+  var tris=[];
+  for(var k=0;k+2<V.length;k++){
+    var p=[posKey(V[k]),posKey(V[k+1]),posKey(V[k+2])];
+    var deg = p[0]===p[1] || p[1]===p[2] || p[0]===p[2];
+    tris.push({k:k,p:p,deg:deg});
+  }
+
+  /* ---- figure ---- */
+  var W=700,H=230,s=svg(W,H);
+  var x0=56, colW=(W-x0-40)/(NCOL-1+0.6), ty=52, by=150;
+  function px(i){ return x0+i*colW; }
+
+  // column guides
+  for(var i=0;i<NCOL;i++){
+    var gg=g("c-ink3");
+    gg.appendChild(line(px(i),ty-22,px(i),by+22,"dot3"));
+    s.appendChild(gg);
+    s.appendChild(txtS(px(i),by+40,"col "+i,"c-ink3","middle"));
+  }
+
+  // triangles
+  tris.forEach(function(t){
+    var vs=[V[t.k],V[t.k+1],V[t.k+2]];
+    var pts=vs.map(function(v){ return [px(v.id), v.sign>0?ty:by]; });
+    if(t.deg){
+      var gg=g("c-ink3");
+      gg.appendChild(line(pts[0][0],ty,pts[0][0],by,"thk"));
+      s.appendChild(gg);
+    } else {
+      var gh=g("c-teal");
+      gh.appendChild(pgon(pts,"fill",{opacity:0.13}));
+      gh.appendChild(pgon(pts,"thin"));
+      s.appendChild(gh);
+    }
+  });
+
+  // vertices
+  for(var j=0;j<V.length;j++){
+    var v=V[j];
+    var gg2=g("c-ink");
+    gg2.appendChild(circ(px(v.id), v.sign>0?ty:by, 3.4, "pt"));
+    s.appendChild(gg2);
+  }
+
+  // the DDRR ribbon under the figure
+  var sy=by+62, cw=(W-x0-30)/tris.length;
+  tris.forEach(function(t,i){
+    var cls=t.deg?"c-ink3":"c-teal";
+    var gg=g(cls);
+    gg.appendChild(rect(x0-18+i*cw, sy, cw-3, 15, "fill", {opacity: t.deg?0.25:0.55}));
+    s.appendChild(gg);
+    s.appendChild(txtS(x0-18+i*cw+(cw-3)/2, sy+11, t.deg?"D":"R", t.deg?"c-ink3":"c-teal","middle"));
+  });
+  s.appendChild(txtS(x0-18, sy-6, "k = 0","c-ink3"));
+  s.appendChild(txtS(W-30, sy-6, "period 4  ·  D D R R","c-ink","end"));
+
+  mount("f3",s);
+
+  /* ---- table ---- */
+  var t=document.getElementById("t3");
+  if(t){
+    var head="<tr><th>k</th><th>v<sub>k</sub></th><th>v<sub>k+1</sub></th><th>v<sub>k+2</sub></th>"+
+             "<th class='sep'>positions</th><th>area</th><th>classification</th></tr>";
+    var rows=tris.map(function(t2){
+      var cl=t2.deg?"deg":"real";
+      return "<tr"+(t2.deg?"":" class='band'")+">"+
+        "<td class='k'>"+t2.k+"</td><td class='dim'>"+t2.k+"</td><td class='dim'>"+(t2.k+1)+"</td><td class='dim'>"+(t2.k+2)+"</td>"+
+        "<td class='sep'>"+t2.p.join("  ")+"</td>"+
+        "<td class='"+cl+"'>"+(t2.deg?"0":"&gt; 0")+"</td>"+
+        "<td class='"+cl+"'>"+(t2.deg?"degenerate":"real")+"</td></tr>";
+    }).join("");
+    var nd=tris.filter(function(x){return x.deg;}).length;
+    var foot="<tr><td colspan='7' class='k' style='padding-top:9px'>"+
+      NCOL+" columns &nbsp;·&nbsp; "+V.length+" vertices &nbsp;·&nbsp; "+tris.length+" triangles &nbsp;·&nbsp; "+
+      nd+" degenerate, "+(tris.length-nd)+" real</td></tr>";
+    t.innerHTML=head+rows+foot;
+  }
+})();
+
+/* ============ PLATE 04 ============ */
+(function(){
+  var t=document.getElementById("t4");
+  if(!t) return;
+  var V=buildVerts(3);
+  var head="<tr><th>k</th><th>id</th><th>sign</th><th>side</th>"+
+    "<th class='sep'>gl_Position</th>"+
+    "<th class='sep'>statsLeft</th><th>statsRight</th><th>statsPrevRight</th><th>statsNextLeft</th></tr>";
+  var rows=V.map(function(v,k){
+    var inQuad = (k>=2 && k<=5);
+    return "<tr"+(inQuad?" class='mark'":"")+">"+
+      "<td class='k'>"+k+"</td>"+
+      "<td>"+v.id+"</td>"+
+      "<td>"+(v.sign>0?"+1":"-1")+"</td>"+
+      "<td class='k'>"+(v.side>0?"+1":"-1")+"</td>"+
+      "<td class='sep'>"+posKey(v)+"</td>"+
+      "<td class='sep k'>"+sL(v)+"</td><td class='k'>"+sR(v)+"</td>"+
+      "<td class='k'>"+sPR(v)+"</td><td class='k'>"+sNL(v)+"</td></tr>";
+  }).join("");
+  t.innerHTML=head+rows;
+})();
+
+/* ============ PLATE 05 ============ */
+(function(){
+  var sl=document.getElementById("sg5"), ro=document.getElementById("ro5");
+  if(!sl) return;
+  var W=560,H=250,s=svg(W,H);
+  var host=mount("f5",s);
+  var dyn=g(); s.appendChild(dyn);
+
+  var ox=52, oy=196, pw=W-ox-40, ph=150;
+  var DMAX=0.26;
+  function X(d){ return ox+pw*d/DMAX; }
+  function Y(a){ return oy-ph*a; }
+
+  // static axes
+  var ax=g("c-ink3");
+  ax.appendChild(line(ox,oy,ox+pw,oy,"thin"));
+  ax.appendChild(line(ox,oy,ox,oy-ph-10,"thin"));
+  s.appendChild(ax);
+  [0,0.25,0.5,0.75,1].forEach(function(a){
+    var gg=g("c-ink3");
+    gg.appendChild(line(ox-4,Y(a),ox,Y(a),"thin"));
+    s.appendChild(gg);
+    s.appendChild(txtS(ox-8,Y(a)+3.5,a.toFixed(2),"c-ink3","end"));
+  });
+  s.appendChild(txtS(ox-8,oy-ph-16,"alpha","c-ink3","start"));
+  s.appendChild(txtS(ox+pw,oy+30,"distance from avg  (viewport heights)","c-ink3","end"));
+
+  function render(){
+    var sd=+sl.value;
+    while(dyn.firstChild) dyn.removeChild(dyn.firstChild);
+
+    // curve
+    var pts=[];
+    for(var i=0;i<=220;i++){ var d=DMAX*i/220; pts.push([X(d),Y(gauss(d,sd))]); }
+    var cg=g("c-plum");
+    cg.appendChild(poly(pts,"v"));
+    dyn.appendChild(cg);
+
+    // sigma landmarks
+    [[1,"1σ"],[2,"2σ"],[3,"3σ"]].forEach(function(L){
+      var d=L[0]*sd; if(d>DMAX) return;
+      var a=gauss(d,sd);
+      var gg=g("c-teal");
+      gg.appendChild(line(X(d),oy,X(d),Y(a),"dash"));
+      gg.appendChild(line(ox,Y(a),X(d),Y(a),"dash"));
+      gg.appendChild(circ(X(d),Y(a),3.4,"pt"));
+      dyn.appendChild(gg);
+      dyn.appendChild(txtS(X(d),oy+14,L[1],"c-teal","middle"));
+      dyn.appendChild(txtS(X(d)+6,Y(a)-6,a.toFixed(3),"c-teal","start"));
+    });
+
+    // the sigma ruler
+    var ry=oy+34;
+    var rg=g("c-amber");
+    dimArrow(rg,ox,ry,X(sd),ry,"c-amber");
+    dyn.appendChild(rg);
+    dyn.appendChild(txtS((ox+X(sd))/2,ry-6,"σ = "+sd.toFixed(3),"c-amber","middle"));
+
+    ro.innerHTML="σ <b>"+sd.toFixed(3)+"</b> &nbsp;<em>·</em>&nbsp; 1σ <b>"+gauss(sd,sd).toFixed(3)+
+      "</b> &nbsp;<em>·</em>&nbsp; 2σ <b>"+gauss(2*sd,sd).toFixed(3)+
+      "</b> &nbsp;<em>·</em>&nbsp; 3σ <b>"+gauss(3*sd,sd).toFixed(3)+"</b>";
+  }
+  sl.addEventListener("input",render);
+  render();
+})();
+
+/* ============ PLATE 06 ============ */
+(function(){
+  var W=560,H=300,s=svg(W,H);
+  var SIGS=[0.035,0.07,0.13];
+  var CLS=["c-blue","c-teal","c-plum"];
+  var DMAX=0.3;
+
+  function panel(oy,ph,norm,title){
+    var ox=58, pw=W-ox-40;
+    function X(d){ return ox+pw*(d+DMAX)/(2*DMAX); }
+    var peak=0;
+    SIGS.forEach(function(sd){ peak=Math.max(peak, norm?1:1/Math.sqrt(2*Math.PI*sd*sd)); });
+    function Y(v){ return oy-ph*(v/peak); }
+
+    var ax=g("c-ink3");
+    ax.appendChild(line(ox,oy,ox+pw,oy,"thin"));
+    ax.appendChild(line(ox,oy,ox,oy-ph-8,"thin"));
+    s.appendChild(ax);
+    s.appendChild(txtS(ox-6,oy-ph-12,title,"c-ink","start"));
+
+    if(norm){
+      var gg=g("c-ink3");
+      gg.appendChild(line(ox,Y(1),ox+pw,Y(1),"dot3"));
+      s.appendChild(gg);
+      s.appendChild(txtS(ox-8,Y(1)+3.5,"1.0","c-ink3","end"));
+    } else {
+      s.appendChild(txtS(ox-8,Y(peak)+3.5,"peak","c-ink3","end"));
+    }
+
+    SIGS.forEach(function(sd,i){
+      var pts=[];
+      for(var k=0;k<=200;k++){
+        var d=-DMAX+2*DMAX*k/200;
+        var v=Math.exp(-0.5*d*d/(sd*sd));
+        if(!norm) v/=Math.sqrt(2*Math.PI*sd*sd);
+        pts.push([X(d),Y(v)]);
+      }
+      var gg=g(CLS[i]);
+      gg.appendChild(poly(pts,"v"));
+      s.appendChild(gg);
+    });
+  }
+
+  panel(126,96,false,"pdf(d, 0, σ²)   —   area 1, peak varies");
+  panel(272,96,true, "÷ pdfCoef   —   peak 1, shape unchanged");
+
+  // legend
+  SIGS.forEach(function(sd,i){
+    var gg=g(CLS[i]);
+    gg.appendChild(line(W-150+i*0, 20+i*15, W-134, 20+i*15, "v"));
+    s.appendChild(gg);
+    s.appendChild(txtS(W-128, 23.5+i*15, "σ = "+sd.toFixed(3), CLS[i]));
+  });
+
+  mount("f6",s);
+})();
+
+/* ============ PLATE 07 ============ */
+(function(){
+  var W=560,H=250,s=svg(W,H);
+  var cols=[{a:0.52,sd:0.030},{a:0.62,sd:0.085},{a:0.44,sd:0.055}];
+  var ox=70, cw=(W-ox-60)/cols.length, oy=30, oh=175;
+  function Y(a){ return oy+oh*(1-a); }
+  var HT=0.0545;
+
+  // axis
+  var ax=g("c-ink3");
+  ax.appendChild(line(ox-14,oy,ox-14,oy+oh,"thin"));
+  s.appendChild(ax);
+  [0,0.5,1].forEach(function(a){
+    s.appendChild(txtS(ox-20,Y(a)+3.5,a.toFixed(1),"c-ink3","end"));
+  });
+
+  cols.forEach(function(c,i){
+    var cx=ox+cw*(i+0.5), hw=cw*0.36;
+    var env=2*c.sd;           // the quad half-height from vertSdev
+    var half=Math.max(env,HT);
+
+    // gaussian fill, drawn as horizontal strips
+    var N=46;
+    for(var k=0;k<N;k++){
+      var t0=-1+2*k/N, t1=-1+2*(k+1)/N;
+      var d0=Math.abs(t0*half), d1=Math.abs(t1*half);
+      var dm=(d0+d1)/2;
+      var a = dm<=HT ? 1 : gauss(dm,c.sd);
+      var yA=Y(c.a+t1*half), yB=Y(c.a+t0*half);
+      var gg=g("c-plum");
+      gg.appendChild(rect(cx-hw,yA,hw*2,Math.abs(yB-yA)+0.6,"fill",{opacity:r(a*0.82)}));
+      s.appendChild(gg);
+    }
+
+    // quad edge
+    var qe=g("c-amber");
+    qe.appendChild(rect(cx-hw,Y(c.a+half),hw*2,oh*half*2,"thin"));
+    s.appendChild(qe);
+
+    // centreline
+    var cl=g("c-ink");
+    cl.appendChild(line(cx-hw-6,Y(c.a),cx+hw+6,Y(c.a),"thin"));
+    s.appendChild(cl);
+
+    // sigma ticks
+    [1,2].forEach(function(m){
+      var gg=g("c-teal");
+      gg.appendChild(line(cx+hw+2,Y(c.a+m*c.sd),cx+hw+9,Y(c.a+m*c.sd),"thin"));
+      s.appendChild(gg);
+      s.appendChild(txtS(cx+hw+12,Y(c.a+m*c.sd)+3,m+"σ","c-teal"));
+    });
+
+    s.appendChild(txtS(cx,oy+oh+18,"σ = "+c.sd.toFixed(3),"c-ink3","middle"));
+    s.appendChild(txtS(cx,oy+oh+32,"±2σ = "+(2*c.sd).toFixed(3),"c-amber","middle"));
+  });
+
+  s.appendChild(txtS(ox-14,oy+oh+18,"band","c-ink3","start"));
+
+  mount("f7",s);
+})();
+
+/* ============ PLATE 08 ============ */
+(function(){
+  var W=560,H=250,s=svg(W,H);
+  var ox=60, oy=26, oh=170, cw=(W-ox-50)/3;
+  function Y(a){ return oy+oh*(1-a); }
+  var HT=0.0545;
+  // avgLeft is the local max
+  var A=[{n:"statsPrevRight",a:0.34,sd:0.05},
+         {n:"statsLeft",     a:0.70,sd:0.06},
+         {n:"statsRight",    a:0.50,sd:0.05},
+         {n:"statsNextLeft", a:0.30,sd:0.05}];
+
+  // centrelines
+  A.forEach(function(c,i){
+    var x0=ox+cw*(i-0.5), x1=ox+cw*(i+0.5);
+    var cls = (i===1)?"c-plum":(i===2?"c-teal":"c-ink3");
+    var gg=g(cls);
+    gg.appendChild(line(Math.max(x0,ox),Y(c.a),Math.min(x1,W-50),Y(c.a),"v"));
+    gg.appendChild(rect(Math.max(x0,ox),Y(c.a+HT),Math.min(x1,W-50)-Math.max(x0,ox),oh*HT*2,"fill",{opacity:0.12}));
+    s.appendChild(gg);
+    s.appendChild(txtS(Math.max(x0,ox)+4,Y(c.a)-HT*oh-7,c.n,cls));
+  });
+
+  // the fragment
+  var fx=ox+cw*1.35, fy=Y(0.88);
+  var fg=g("c-amber");
+  fg.appendChild(pgon([[fx,fy-6],[fx+6,fy],[fx,fy+6],[fx-6,fy]],"pt"));
+  s.appendChild(fg);
+  s.appendChild(txtS(fx+12,fy+4,"fragment","c-amber"));
+
+  // distances
+  var dg=g("c-plum");
+  dimArrow(dg,fx,fy+8,fx,Y(0.70)-2,"c-plum");
+  s.appendChild(dg);
+  s.appendChild(txtS(fx-8,(fy+Y(0.70))/2+4,"d","c-plum","end"));
+
+  // verdict boxes
+  var by=oy+oh+22;
+  var V=[["block 1","excluded","avgRight &lt; avgLeft"],
+         ["block 2","RUNS","avgLeft is local max"],
+         ["block 3","excluded","y not below"],
+         ["block 4","excluded","y not below"]];
+  V.forEach(function(v,i){
+    var x=ox+i*((W-ox-40)/4);
+    var cls=v[1]==="RUNS"?"c-teal":"c-ink3";
+    var gg=g(cls);
+    gg.appendChild(rect(x,by,(W-ox-40)/4-8,17,"thin"));
+    s.appendChild(gg);
+    s.appendChild(txtS(x+5,by+12,v[0]+"  "+v[1],cls));
+  });
+
+  mount("f8",s);
+})();
+
+/* ============ PLATE 09 ============ */
+(function(){
+  var sl=document.getElementById("sg9"), ro=document.getElementById("ro9"), md=document.getElementById("md9");
+  if(!sl) return;
+  var W=560,H=250,s=svg(W,H);
+  mount("f9",s);
+  var dyn=g(); s.appendChild(dyn);
+
+  var ox=56, oy=200, pw=W-ox-46, ph=155;
+  var HT=0.0545, YMAX=0.30;
+  function X(a){ return ox+pw*a; }
+  function Y(d){ return oy-ph*(d+YMAX)/(2*YMAX); }  // vertical axis = distance
+
+  var ax=g("c-ink3");
+  ax.appendChild(line(ox,oy,ox,oy-ph,"thin"));
+  ax.appendChild(line(ox,oy,ox+pw,oy,"thin"));
+  s.appendChild(ax);
+  s.appendChild(txtS(ox+pw,oy+26,"alpha  →","c-ink3","end"));
+  s.appendChild(txtS(ox-6,oy-ph-8,"y − avg","c-ink3","start"));
+  [0,0.5,1].forEach(function(a){
+    var gg=g("c-ink3"); gg.appendChild(line(X(a),oy,X(a),oy+4,"thin")); s.appendChild(gg);
+    s.appendChild(txtS(X(a),oy+16,a.toFixed(1),"c-ink3","middle"));
+  });
+
+  function render(){
+    var sd=+sl.value;
+    while(dyn.firstChild) dyn.removeChild(dyn.firstChild);
+
+    var edgeA=gauss(HT,sd);
+
+    // band region
+    var bg=g("c-ink3");
+    bg.appendChild(rect(ox,Y(HT),pw,Math.abs(Y(-HT)-Y(HT)),"fill",{opacity:0.09}));
+    dyn.appendChild(bg);
+    dyn.appendChild(txtS(ox+pw-4,Y(0)+4,"inside band: alpha untouched","c-ink3","end"));
+
+    // profile: flat 1 inside, gaussian outside
+    var up=[],dn=[];
+    for(var i=0;i<=140;i++){
+      var d=HT+(YMAX-HT)*i/140;
+      up.push([X(gauss(d,sd)),Y(d)]);
+      dn.push([X(gauss(d,sd)),Y(-d)]);
+    }
+    var pg=g("c-plum");
+    pg.appendChild(poly([[X(1),Y(HT)],[X(1),Y(-HT)]],"v"));
+    pg.appendChild(poly(up,"v"));
+    pg.appendChild(poly(dn,"v"));
+    // the two discontinuity jumps
+    pg.appendChild(line(X(1),Y(HT),X(edgeA),Y(HT),"dash"));
+    pg.appendChild(line(X(1),Y(-HT),X(edgeA),Y(-HT),"dash"));
+    dyn.appendChild(pg);
+
+    var jg=g("c-amber");
+    jg.appendChild(circ(X(edgeA),Y(HT),3.6,"pt"));
+    jg.appendChild(circ(X(edgeA),Y(-HT),3.6,"pt"));
+    dimArrow(jg,X(edgeA),Y(HT)-11,X(1),Y(HT)-11,"c-amber");
+    dyn.appendChild(jg);
+    dyn.appendChild(txtS((X(edgeA)+X(1))/2,Y(HT)-16,"jump "+(1-edgeA).toFixed(3),"c-amber","middle"));
+
+    // ht markers
+    var hg=g("c-teal");
+    [HT,-HT].forEach(function(d){ hg.appendChild(line(ox-5,Y(d),ox,Y(d),"thin")); });
+    dyn.appendChild(hg);
+    dyn.appendChild(txtS(ox-8,Y(HT)+3.5,"+ht","c-teal","end"));
+    dyn.appendChild(txtS(ox-8,Y(-HT)+3.5,"−ht","c-teal","end"));
+
+    var cls = (1-edgeA)<0.08 ? "a" : ((1-edgeA)<0.55 ? "b" : "c");
+    md.dataset.mode=cls;
+    md.className="mode "+(cls==="a"?"ma":cls==="b"?"mb":"mc");
+    ro.innerHTML="σ <b>"+sd.toFixed(4)+"</b> &nbsp;<em>·</em>&nbsp; ht/σ <b>"+(HT/sd).toFixed(2)+
+      "</b> &nbsp;<em>·</em>&nbsp; edge alpha <b>"+edgeA.toFixed(3)+"</b>";
+  }
+  sl.addEventListener("input",render);
+  render();
+})();
+
+/* ============ PLATE 10 ============ */
+(function(){
+  var sl=document.getElementById("px10"), ro=document.getElementById("ro10");
+  if(!sl) return;
+  var W=680,H=250,s=svg(W,H);
+  mount("f10",s);
+  var dyn=g(); s.appendChild(dyn);
+
+  var NPX=20, ox=44, pw=W-ox-30, cell=pw/NPX;
+  var topY=44, topH=44, botY=150, botH=44;
+
+  var st=g("c-ink3");
+  st.appendChild(txtS(ox,topY-10,"columns emitted by the vertex shader","c-ink3"));
+  st.appendChild(txtS(ox,botY-9,"what each pixel actually samples","c-ink3"));
+  s.appendChild(st);
+
+  function render(){
+    var ps=+sl.value;
+    while(dyn.firstChild) dyn.removeChild(dyn.firstChild);
+
+    var ncol=Math.ceil(NPX/ps);
+    // which column owns each pixel centre
+    var owner=[], seen={};
+    for(var p=0;p<NPX;p++){
+      var c=Math.floor((p+0.5)/ps);
+      owner.push(c); seen[c]=true;
+    }
+    var dropped=0;
+    for(var c2=0;c2<ncol;c2++) if(!seen[c2]) dropped++;
+
+    // top band: columns
+    for(var i=0;i<ncol;i++){
+      var x=ox+i*ps*cell, w=ps*cell;
+      var alive=!!seen[i];
+      var gg=g(alive?"c-teal":"c-ink3");
+      gg.appendChild(rect(x,topY,Math.max(w-0.8,0.6),topH,"fill",{opacity:alive?0.34:0.10}));
+      if(w>13) gg.appendChild(rect(x,topY,w-0.8,topH,"thin"));
+      dyn.appendChild(gg);
+      if(w>17) dyn.appendChild(txtS(x+w/2,topY+topH/2+4,String(i),alive?"c-teal":"c-ink3","middle"));
+    }
+
+    // pixel grid + centres
+    for(var p2=0;p2<NPX;p2++){
+      var gx=ox+p2*cell;
+      var gg2=g("c-ink3");
+      gg2.appendChild(line(gx,topY-5,gx,botY+botH+5,"grid"));
+      dyn.appendChild(gg2);
+      var cg=g("c-amber");
+      cg.appendChild(circ(gx+cell/2,topY+topH+13,2.6,"pt"));
+      dyn.appendChild(cg);
+    }
+    var gg3=g("c-ink3");
+    gg3.appendChild(line(ox+NPX*cell,topY-5,ox+NPX*cell,botY+botH+5,"grid"));
+    dyn.appendChild(gg3);
+
+    // bottom band: sampled column per pixel
+    for(var p3=0;p3<NPX;p3++){
+      var bx=ox+p3*cell;
+      var gg4=g("c-teal");
+      gg4.appendChild(rect(bx,botY,cell-0.8,botH,"fill",{opacity:0.30}));
+      gg4.appendChild(rect(bx,botY,cell-0.8,botH,"thin"));
+      dyn.appendChild(gg4);
+      dyn.appendChild(txtS(bx+cell/2,botY+botH/2+4,String(owner[p3]),"c-teal","middle"));
+    }
+
+    dyn.appendChild(txtS(ox,botY+botH+22,"pixel centre at p+0.5  →  column floor((p+0.5)/pxStep)","c-ink3"));
+    if(Math.abs(ps-0.5)<1e-9)
+      dyn.appendChild(txtS(ox,botY+botH+38,"at pxStep 0.5 the owner is always 2p+1 — every even column is dropped","c-ink"));
+    else
+      dyn.appendChild(txtS(ox,botY+botH+38,dropped+" of "+ncol+" columns never produce a fragment","c-ink"));
+
+    ro.innerHTML="pxStep <b>"+ps.toFixed(2)+"</b> &nbsp;<em>·</em>&nbsp; cols <b>"+String(ncol).padStart(2,"0")+
+      "</b> &nbsp;<em>·</em>&nbsp; dropped <b>"+String(dropped).padStart(2,"0")+"</b>";
+  }
+  sl.addEventListener("input",render);
+  render();
+})();
+
+/* ============ PLATE 11 ============ */
+(function(){
+  var W=560,H=240,s=svg(W,H);
+  var ox=60, oy=190, pw=W-ox-50, ph=145;
+  var N=8;
+  function X(i){ return ox+pw*i/N; }
+  function Y(a){ return oy-ph*Math.min(a,1.35)/1.35; }
+
+  var ax=g("c-ink3");
+  ax.appendChild(line(ox,oy,ox+pw,oy,"thin"));
+  ax.appendChild(line(ox,oy,ox,oy-ph-6,"thin"));
+  s.appendChild(ax);
+  [0,0.5,1].forEach(function(a){
+    var gg=g("c-ink3"); gg.appendChild(line(ox-4,Y(a),ox,Y(a),"thin")); s.appendChild(gg);
+    s.appendChild(txtS(ox-8,Y(a)+3.5,a.toFixed(1),"c-ink3","end"));
+  });
+  var cg=g("c-ink3");
+  cg.appendChild(line(ox,Y(1),ox+pw,Y(1),"dot3"));
+  s.appendChild(cg);
+  s.appendChild(txtS(ox+pw,oy+26,"coincident fragments  →","c-ink3","end"));
+  s.appendChild(txtS(ox-6,oy-ph-14,"accumulated alpha","c-ink3","start"));
+
+  var a=0.35;
+  var uni=[[X(0),Y(0)]], sum=[[X(0),Y(0)]], acc=0, ssum=0;
+  for(var i=1;i<=N;i++){
+    acc = acc + a*(1-acc);      // srcAlpha = one minus dst alpha, dstAlpha = one
+    ssum = ssum + a;
+    uni.push([X(i),Y(acc)]);
+    sum.push([X(i),Y(ssum)]);
+  }
+  var sg=g("c-ink3"); sg.appendChild(poly(sum,"dash")); s.appendChild(sg);
+  var ug=g("c-teal"); ug.appendChild(poly(uni,"v")); s.appendChild(ug);
+  uni.forEach(function(p,i){ if(i){ var gg=g("c-teal"); gg.appendChild(circ(p[0],p[1],3,"pt")); s.appendChild(gg);} });
+
+  s.appendChild(txtS(X(N)-6,Y(acc)-10,"union  a + a(1−a)","c-teal","end"));
+  s.appendChild(txtS(X(3)+6,Y(3*a)-8,"a true sum would clip","c-ink3"));
+  s.appendChild(txtS(ox+6,Y(1)-7,"1.0 — never exceeded","c-ink3"));
+  s.appendChild(txtS(ox,oy+40,"each fragment contributes alpha "+a.toFixed(2),"c-ink3"));
+
+  mount("f11",s);
+})();
+
+})();
+</script>
