@@ -163,7 +163,14 @@ svg{color:var(--ink-2)}
   font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; font-weight:600;
   letter-spacing:.13em; text-transform:uppercase; padding:3px 9px; white-space:nowrap;
   border:1px solid currentColor;
+  display:inline-grid; justify-items:center;
 }
+/* all three labels share one cell, so the box is always as wide as the longest
+   one and the slider track beside it never resizes mid-drag */
+.mode > i{grid-area:1/1; font-style:normal; visibility:hidden}
+.mode[data-mode="miter"] > i:nth-child(1),
+.mode[data-mode="blend"] > i:nth-child(2),
+.mode[data-mode="vert"]  > i:nth-child(3){visibility:visible}
 .mode.miter{color:var(--amber)} .mode.blend{color:var(--teal)} .mode.vert{color:var(--plum)}
 
 /* ---------- closing ---------- */
@@ -383,7 +390,7 @@ else join = vert * <b>vertSdev</b>;</pre>
       <label for="sig">σ</label>
       <input type="range" id="sig" min="0" max="0.15" step="0.0005" value="0.080">
       <span class="readout" id="ro"></span>
-      <span class="mode" id="md"></span>
+      <span class="mode" id="md" data-mode="blend"><i>miter</i><i>blend</i><i>vertical</i></span>
     </div>
     <div class="fig" id="f9"></div>
     <p class="figcap">Number line is for the spotlight vertex ◆ only. Ribbon vertices are tinted by the branch each one takes. End vertices use the NaN caps — <code>join = normalRight</code> / <code>normalLeft</code>, one lone normal, no corner to solve.</p>
@@ -1151,10 +1158,11 @@ function intersect(a,b,c,d){
     /* readout */
     var sm=sols[SPOT];
     ro.innerHTML = "σ <b>"+sd.toFixed(4)+"</b> &nbsp;<em>→</em>&nbsp; vertSdev <b>"+vsd.toFixed(2)+"</b>"
-      + (sm.mode==="blend" ? " &nbsp;<em>·</em>&nbsp; t <b>"+sm.t.toFixed(2)+"</b>" : "")
+      + " &nbsp;<em>·</em>&nbsp; t <b>"+sm.t.toFixed(2)+"</b>"
       + " &nbsp;<em>·</em>&nbsp; |join| <b>"+Math.hypot(sm.join[0],sm.join[1]).toFixed(2)+"</b>";
-    md.textContent = sm.mode==="miter"?"miter":sm.mode==="blend"?"blend":"vertical";
-    md.className = "mode " + (sm.mode==="miter"?"miter":sm.mode==="blend"?"blend":"vert");
+    var mcls = sm.mode==="miter"?"miter":sm.mode==="blend"?"blend":"vert";
+    md.dataset.mode = mcls;
+    md.className = "mode " + mcls;
   }
   sl.addEventListener("input",render);
   render();
