@@ -70,6 +70,9 @@ h1{
 }
 @media (max-width:860px){ .plate{grid-template-columns:minmax(0,1fr); gap:20px} }
 
+/* grid/flex items default to min-width:auto and refuse to shrink below their
+   content, which lets wide figures push the page instead of scrolling in place */
+.col-text, .col-fig{min-width:0}
 .col-text{display:flex; flex-direction:column; gap:13px}
 .pnum{
   font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; font-weight:600;
@@ -79,7 +82,7 @@ h2{
   font-family:"IBM Plex Sans Condensed",system-ui,sans-serif; font-weight:600;
   font-size:23px; line-height:1.14; letter-spacing:-.005em; margin:0; text-wrap:balance;
 }
-.col-text p{margin:0; color:var(--ink-2)}
+.col-text p{margin:0; color:var(--ink-2); overflow-wrap:anywhere}
 .col-text p b{color:var(--ink); font-weight:500}
 .col-text p i{color:var(--ink); font-style:italic}
 
@@ -159,6 +162,10 @@ svg{color:var(--ink-2)}
   font-variant-numeric:tabular-nums; white-space:nowrap;
 }
 .readout em{color:var(--ink-3); font-style:normal}
+/* nowrap keeps the readout a fixed width so the slider track cannot resize
+   mid-drag; below the breakpoint the slider is on its own row anyway, so
+   wrapping there costs nothing and stops a long readout pushing the page */
+@media (max-width:560px){ .readout{white-space:normal} }
 .mode{
   font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; font-weight:600;
   letter-spacing:.13em; text-transform:uppercase; padding:3px 9px; white-space:nowrap;
@@ -182,7 +189,7 @@ svg{color:var(--ink-2)}
   font-family:"IBM Plex Sans Condensed",system-ui,sans-serif; font-weight:600; font-size:16px;
   margin:0; color:var(--ink);
 }
-.edge p{margin:0; font-size:14.5px; color:var(--ink-2)}
+.edge p{margin:0; font-size:14.5px; color:var(--ink-2); overflow-wrap:anywhere}
 .edge .tag{
   font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10px; letter-spacing:.14em;
   text-transform:uppercase; color:var(--ink-3);
