@@ -1,0 +1,808 @@
+<title>Conservative, Not Exact</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&display=swap">
+
+<style>
+:root{
+  --paper:#E7EBEC; --sheet:#F8FAFA; --sheet-2:#F0F4F4; --well:#DEE5E6;
+  --ink:#16232B; --ink-2:#485A64; --ink-3:#7A8A93;
+  --rule:#C6D0D3; --rule-2:#DAE1E3; --grid:#D2DBDD;
+  --blue:#1B5C9E; --teal:#0A7361; --amber:#9E6005; --plum:#8A3663;
+  --shadow:0 1px 0 rgba(22,35,43,.05);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0B1216; --sheet:#111B20; --sheet-2:#16222A; --well:#0D171C;
+    --ink:#DBE5E7; --ink-2:#9DAFB6; --ink-3:#6F838B;
+    --rule:#28383F; --rule-2:#1E2D35; --grid:#20313A;
+    --blue:#77B1EA; --teal:#3FC9B1; --amber:#F2B64E; --plum:#E093BE;
+    --shadow:0 1px 0 rgba(0,0,0,.3);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0B1216; --sheet:#111B20; --sheet-2:#16222A; --well:#0D171C;
+  --ink:#DBE5E7; --ink-2:#9DAFB6; --ink-3:#6F838B;
+  --rule:#28383F; --rule-2:#1E2D35; --grid:#20313A;
+  --blue:#77B1EA; --teal:#3FC9B1; --amber:#F2B64E; --plum:#E093BE;
+  --shadow:0 1px 0 rgba(0,0,0,.3);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Serif",Georgia,serif;
+  font-size:15.5px; line-height:1.62;
+  margin:0; padding-block:34px 60px; padding-left:20px; padding-right:20px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1160px; margin:0 auto; display:flex; flex-direction:column; gap:34px}
+
+.mast{display:flex; flex-direction:column; gap:14px; padding-bottom:26px; border-bottom:2px solid var(--ink)}
+.eyebrow{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; font-weight:500;
+  letter-spacing:.18em; text-transform:uppercase; color:var(--ink-3);
+}
+h1{
+  font-family:"IBM Plex Sans Condensed",system-ui,sans-serif; font-weight:700;
+  font-size:clamp(30px,5.6vw,52px); line-height:1.03; letter-spacing:-.012em;
+  margin:0; text-wrap:balance; max-width:20ch;
+}
+.standfirst{margin:0; max-width:66ch; color:var(--ink-2); font-size:17px}
+.standfirst b{color:var(--ink); font-weight:500}
+.vol{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; color:var(--ink-3)}
+.vol a{color:var(--blue)}
+.givens{
+  display:flex; flex-wrap:wrap; gap:0 26px; row-gap:8px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; color:var(--ink-2);
+  padding-top:4px;
+}
+.givens span b{color:var(--ink); font-weight:500}
+
+.plate{
+  display:grid; grid-template-columns:minmax(0,330px) minmax(0,1fr);
+  gap:0 38px; align-items:start;
+  border-top:1px solid var(--rule); padding-top:22px;
+}
+@media (max-width:860px){ .plate{grid-template-columns:minmax(0,1fr); gap:20px} }
+.plate.wide{grid-template-columns:minmax(0,1fr)}
+.col-text, .col-fig{min-width:0}
+.col-text{display:flex; flex-direction:column; gap:13px}
+.pnum{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; font-weight:600;
+  letter-spacing:.16em; color:var(--amber);
+}
+h2{
+  font-family:"IBM Plex Sans Condensed",system-ui,sans-serif; font-weight:600;
+  font-size:23px; line-height:1.14; letter-spacing:-.005em; margin:0; text-wrap:balance;
+}
+.col-text p{margin:0; color:var(--ink-2); overflow-wrap:anywhere}
+.col-text p b{color:var(--ink); font-weight:500}
+.col-text p i{color:var(--ink); font-style:italic}
+
+code, .code{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12.5px}
+p code{background:var(--sheet-2); padding:.06em .3em; border-radius:2px; color:var(--ink); font-size:12px}
+pre{
+  margin:0; background:var(--well); border-left:2px solid var(--rule);
+  padding:11px 13px; overflow-x:auto;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; line-height:1.62;
+  color:var(--ink-2); white-space:pre;
+}
+pre b{color:var(--ink); font-weight:500}
+pre .cm{color:var(--ink-3); font-style:italic}
+pre .hi{color:var(--plum); font-weight:500}
+pre .ok{color:var(--teal); font-weight:500}
+
+.note{border-left:2px solid var(--amber); padding:2px 0 2px 13px; font-size:14px; color:var(--ink-2)}
+.note b{color:var(--ink); font-weight:500}
+.note.t{border-left-color:var(--teal)}
+.note.p{border-left-color:var(--plum)}
+
+.chip{
+  display:inline-flex; align-items:baseline; gap:5px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; color:var(--ink-2);
+}
+.chip::before{content:""; width:11px; height:2.5px; background:currentColor; align-self:center}
+.chip.b{color:var(--blue)} .chip.t{color:var(--teal)} .chip.a{color:var(--amber)} .chip.p{color:var(--plum)}
+.chip.k{color:var(--ink)} .chip.g{color:var(--ink-3)}
+.keys{display:flex; flex-wrap:wrap; gap:6px 18px; padding-top:2px}
+
+.fig{background:var(--sheet); border:1px solid var(--rule-2); box-shadow:var(--shadow); padding:8px; overflow-x:auto}
+.fig svg{display:block; width:100%; height:auto; min-width:440px}
+.figcap{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; color:var(--ink-3);
+  margin:8px 0 0; padding:0 2px; line-height:1.5;
+}
+.col-fig{display:flex; flex-direction:column}
+
+.v{stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round}
+.vh{fill:currentColor; stroke:none}
+.thin{stroke:currentColor; fill:none; stroke-width:1.2}
+.thk{stroke:currentColor; fill:none; stroke-width:3; stroke-linecap:round}
+.dash{stroke:currentColor; fill:none; stroke-width:1.2; stroke-dasharray:4 3.5}
+.dot3{stroke:currentColor; fill:none; stroke-width:1.2; stroke-dasharray:1.5 3; stroke-linecap:round}
+.grid{stroke:var(--grid); fill:none; stroke-width:1}
+.rul{stroke:var(--rule); fill:none; stroke-width:1}
+.pt{fill:currentColor; stroke:none}
+.fill{fill:currentColor; stroke:none}
+.lbl{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; fill:currentColor; stroke:none}
+.lbl.sm{font-size:9.5px}
+.lbl.bg{font-size:12.5px; font-weight:500}
+.c-ink{color:var(--ink)} .c-ink2{color:var(--ink-2)} .c-ink3{color:var(--ink-3)}
+.c-blue{color:var(--blue)} .c-teal{color:var(--teal)} .c-amber{color:var(--amber)} .c-plum{color:var(--plum)}
+svg{color:var(--ink-2)}
+
+.ctl{
+  display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px;
+  background:var(--sheet-2); border:1px solid var(--rule-2); padding:11px 13px; margin-bottom:10px;
+}
+.ctl label{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); white-space:nowrap;
+}
+.ctl input[type=range]{flex:1 1 190px; min-width:150px; accent-color:var(--plum); height:22px}
+.ctl input[type=range]:focus-visible{outline:2px solid var(--amber); outline-offset:3px}
+.readout{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:12px; color:var(--ink);
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+.readout em{color:var(--ink-3); font-style:normal}
+.readout b{font-weight:500}
+@media (max-width:560px){ .readout{white-space:normal} }
+
+.tblwrap{overflow-x:auto; background:var(--sheet); border:1px solid var(--rule-2); box-shadow:var(--shadow)}
+table.tbl{
+  border-collapse:collapse; width:100%; min-width:520px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11.5px; font-variant-numeric:tabular-nums;
+}
+table.tbl th{
+  text-align:left; font-weight:600; color:var(--ink-3); background:var(--sheet-2);
+  padding:7px 9px; border-bottom:1px solid var(--rule); white-space:nowrap;
+  font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+}
+table.tbl td{padding:5px 9px; border-bottom:1px solid var(--rule-2); color:var(--ink-2); white-space:nowrap}
+table.tbl tr:last-child td{border-bottom:0}
+table.tbl td.k{color:var(--ink); font-weight:500}
+table.tbl td.good{color:var(--teal); font-weight:500}
+table.tbl td.bad{color:var(--plum); font-weight:500}
+table.tbl td.sep{border-left:1px solid var(--rule-2)}
+
+.close{border-top:2px solid var(--ink); padding-top:24px; display:flex; flex-direction:column; gap:16px}
+.close h2{font-size:26px}
+.edges{display:grid; grid-template-columns:repeat(auto-fit,minmax(258px,1fr)); gap:22px 34px}
+.edge{display:flex; flex-direction:column; gap:6px}
+.edge h3{font-family:"IBM Plex Sans Condensed",system-ui,sans-serif; font-weight:600; font-size:16px; margin:0; color:var(--ink)}
+.edge p{margin:0; font-size:14.5px; color:var(--ink-2); overflow-wrap:anywhere}
+.edge .tag{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3)}
+footer{
+  font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; color:var(--ink-3);
+  border-top:1px solid var(--rule); padding-top:14px; line-height:1.7;
+}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <div class="eyebrow">webgpu-waveform · LOD pyramid · range-query exactness</div>
+  <h1>Conservative, Not Exact</h1>
+  <p class="standfirst">A min/max pyramid can be sloppy at its edges and still look right. A mean/σ pyramid cannot. Eight plates on why that asymmetry exists, what it costs, and what an exact query has to do instead — <b>the one part of <code>webgpu-waveform</code>'s design that does not transfer to <code>gl-waveform</code></b>.</p>
+  <p class="vol">Companion to the <a href="webgpu-waveform-comparison.md">library comparison</a>. Figures are computed at load from a real signal, not drawn by hand.</p>
+  <div class="givens">
+    <span>teaching figures:</span>
+    <span>column <b>40 samples</b></span>
+    <span>bin <b>16</b></span>
+    <span>ratio <b>1 : 2.5</b></span>
+    <span>real ratio is <b>1 : 64</b> — stated alongside where it matters</span>
+  </div>
+</header>
+
+<!-- 1 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 01</div>
+    <h2>A pyramid is a grid, and the grid does not move</h2>
+    <p>Each level summarises fixed, <b>aligned</b> blocks of the level below. Bin <i>b</i> at a level with bin size <code>S</code> owns exactly samples <code>[b·S, (b+1)·S)</code> — always, regardless of what you later ask for.</p>
+<pre><span class="cm">// buildMinMaxPyramid, ratio 64</span>
+level 1  bin =      64 samples
+level 2  bin =   4 096
+level 3  bin = 262 144</pre>
+    <p>That fixity is what makes the pyramid cheap: no bookkeeping, pure index arithmetic, and each level is built once in a single linear sweep of the one below.</p>
+    <div class="note">It is also the entire problem. A <i>pixel column</i> is defined by the viewport — by <code>scale</code> and <code>offset</code>, which change every time the user pans. The column boundaries slide continuously; the bin boundaries never move. They will almost never line up.</div>
+  </div>
+  <div class="col-fig"><div class="fig" id="f1"></div>
+    <p class="figcap">Three levels over the same samples. Bin edges are locked to multiples of the bin size at every level.</p>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 02</div>
+    <h2>A column is not a bin range</h2>
+    <p>The shader converts a sample span into a bin span by division, and division rounds outward on both ends:</p>
+<pre>let b0 = <b>startSample / binSize</b>;
+let b1 = <b>(endSample - 1)
+         / binSize</b>;
+for (var b = b0 + 1;
+     b &lt;= b1; b++) { ... }</pre>
+    <p>So the bins actually read cover <code>[b0·S, (b1+1)·S)</code>, which <b>contains</b> the column's true span <code>[s0, s1)</code> and generally exceeds it — by up to <code>S−1</code> samples on the left and <code>S−1</code> on the right.</p>
+    <p>Drag the column. The overhang breathes as it slides, and jumps whenever an edge crosses a bin boundary. Nothing is wrong with the code — this is exactly what integer division is supposed to do.</p>
+    <div class="keys">
+      <span class="chip t">column [s0, s1)</span><span class="chip a">bins read</span><span class="chip p">overhang</span>
+    </div>
+  </div>
+  <div class="col-fig">
+    <div class="ctl">
+      <label for="off2">s0</label>
+      <input type="range" id="off2" min="0" max="47" step="1" value="9">
+      <span class="readout" id="ro2"></span>
+    </div>
+    <div class="fig" id="f2"></div>
+    <p class="figcap">Teaching ratio 1:2.5, so the overhang is large enough to see. At the real 1:64 it is at most ~3% of a column — small, but never zero, and never stationary.</p>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 03</div>
+    <h2>For min/max, the overhang can only add</h2>
+    <p>min and max are <b>idempotent and monotone under union</b>. Adding samples to a set can lower the min and raise the max; it can never do the reverse.</p>
+<pre>A ⊆ B  ⟹  max(A) ≤ max(B)
+       and  min(A) ≥ min(B)</pre>
+    <p>The bins read are a superset of the column. So the envelope you get is a superset of the true envelope: it may be <i>too tall</i>, never too short. A peak is never hidden, only occasionally borrowed from a neighbour.</p>
+    <div class="note t">This is what the source means by <i>"conservative — the envelope only ever grows, never clips."</i> For an audio peak display that is precisely the safe direction to be wrong in. You would rather see a transient one pixel early than not see it.</div>
+  </div>
+  <div class="col-fig"><div class="fig" id="f3"></div>
+    <p class="figcap">Same column, same overhang. The computed envelope brackets the true one on both sides. The shaded difference is the overhang's only possible contribution.</p>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="plate wide">
+  <div class="col-text" style="max-width:74ch">
+    <div class="pnum">PLATE 04</div>
+    <h2>The proof is in the sign</h2>
+    <p>Slide the column across 400 offsets and plot the error against the true value. The two statistics behave categorically differently, and you can read it straight off the zero line.</p>
+    <div class="note t"><b>Envelope error is one-sided.</b> Over 400 offsets the sign of <code>max_computed − max_true</code> takes only the values <b>{0, +1}</b>. It is never negative. Not "rarely" — never, as a consequence of the subset relation in Plate 03.</div>
+    <div class="note p"><b>Mean error is two-sided.</b> Over the same 400 offsets: <b>176 negative, 184 positive, 40 exact.</b> It oscillates around the truth with a period equal to the bin size, because which extra samples get a vote depends on where the bin grid happens to fall.</div>
+    <p>A one-sided error is a <i>bias</i> — a known, bounded, directional distortion you can reason about and accept. A two-sided error is <i>noise</i>. There is no argument of the form "it only ever grows" available for the mean, because it does not only ever grow.</p>
+  </div>
+  <div class="col-fig" style="margin-top:14px">
+    <div class="fig" id="f4"></div>
+    <p class="figcap">Error against column offset, computed at load. Top: envelope, entirely on one side of zero. Bottom: mean, crossing zero on almost every bin boundary. Same signal, same pyramid, same query.</p>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 05</div>
+    <h2>Two-sided error is not error. It is jitter.</h2>
+    <p>A static wrong number is tolerable. The problem is that the error is a function of <code>offset</code> — and <code>offset</code> is what changes when the user <b>pans</b>.</p>
+    <p>So as the waveform scrolls, every column's mean walks up and down its own little sawtooth, with a period of one bin. The rendered line <b>shimmers</b> against a signal that has not changed. Worse, adjacent columns are at different phases of that sawtooth, so the shimmer is spatially incoherent — it reads as crawling noise rather than a clean sub-pixel slide.</p>
+    <div class="note">The envelope shimmers too, at the same period. But it only ever grows, so the visual effect is a boundary that breathes outward slightly — far less objectionable than a centreline that wanders.</div>
+    <p>This is the same class of defect as the <code>pxStep = 0.5</code> column decimation in <code>gl-waveform</code>: correct-looking when static, wrong in motion, and invisible to any test that renders one frame.</p>
+  </div>
+  <div class="col-fig"><div class="fig" id="f5"></div>
+    <p class="figcap">One column's computed mean as the view pans one bin at a time. The true mean moves smoothly; the pyramid estimate staircases around it.</p>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 06</div>
+    <h2>σ is worse than the mean</h2>
+    <p>The overhang does not just shift the centre — it admits samples the column never contained, and variance punishes outliers <b>quadratically</b>.</p>
+    <p>A single loud sample just outside the column raises the computed σ by an amount proportional to its squared distance from the mean. The envelope would have absorbed it harmlessly; the variance amplifies it.</p>
+<pre><span class="cm">// max |error|, 400 offsets</span>
+          mean     sdev
+ 1:2.5   <b>0.302</b>   <b>0.176</b>
+ 1:64    <b>0.0096</b>  <b>0.0042</b></pre>
+    <p>At the realistic 1:64 ratio the numbers look small — about 1% — but they are 1% of a quantity that is itself driving <i>opacity</i> in the fragment shader, and they move with the offset.</p>
+    <div class="note p">Note the realistic envelope error at that ratio: <b>exactly zero</b> across all 400 offsets. The column is wide enough that it already contains its own local extremes, so the overhang adds nothing. The mean's error at the same ratio is <i>not</i> zero. The asymmetry does not shrink away with a better ratio; it is structural.</div>
+  </div>
+  <div class="col-fig"><div class="fig" id="f6"></div>
+    <p class="figcap">One outlier sample in the overhang. The envelope stretches to include it and stops. σ registers its squared distance.</p>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="plate">
+  <div class="col-text">
+    <div class="pnum">PLATE 07</div>
+    <h2>What exactness costs: the staircase</h2>
+    <p>To get an exact answer for an arbitrary range you cannot use one level. You decompose the range across <b>several</b> levels — coarse nodes in the middle, progressively finer ones toward each edge — so the union is exactly <code>[lo, hi)</code> with no overhang at all.</p>
+<pre>var l = lo + N;
+var r = hi + N;
+while (l &lt; r) {
+  if ((l &amp; 1u) == 1u) {
+    res = merge(res, t[l]);
+    l++;
+  }
+  if ((r &amp; 1u) == 1u) {
+    r--;
+    res = merge(res, t[r]);
+  }
+  l &gt;&gt;= 1u; r &gt;&gt;= 1u;
+}</pre>
+    <p>That is the standard iterative segment-tree query: about <b>2·log₂N</b> nodes, climbing one level per iteration and picking up at most two nodes on the way. For a million samples, roughly 40 merges.</p>
+    <div class="note t">The merge must also be exact, which for mean/σ means Chan's parallel formula rather than summing — so the pyramid stores <code>(n, mean, M2)</code>, not <code>(sum, sum²)</code>. That choice is what removes the catastrophic cancellation as well. Two problems, one structure.</div>
+  </div>
+  <div class="col-fig"><div class="fig" id="f7"></div>
+    <p class="figcap">An arbitrary range decomposed. Node widths double toward the middle and halve toward the edges; their union is exactly the requested span, computed and verified at load.</p>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="plate wide">
+  <div class="col-text" style="max-width:74ch">
+    <div class="pnum">PLATE 08</div>
+    <h2>The two queries, and the premise underneath</h2>
+    <p>Side by side, the difference is not really cost — both are bounded and both are cheap. It is whether the answer is allowed to be approximate.</p>
+  </div>
+  <div class="col-fig" style="margin-top:14px">
+    <div class="tblwrap"><table class="tbl" id="t8"></table></div>
+    <p class="figcap">Both are bounded loops. Only one is exact. Note that the bounded scan is cheaper in the common case and the segment tree is cheaper in the worst case.</p>
+    <div style="height:18px"></div>
+    <div class="fig" id="f8"></div>
+    <p class="figcap">Appending K samples dirties a contiguous node range at every level — the update is a widening path, not a rebuild. <code>webgpu-waveform</code> does not implement this: it builds the whole pyramid on the CPU in the constructor and treats the data as immutable thereafter.</p>
+  </div>
+</section>
+
+<section class="close">
+  <h2>Edges of the reading</h2>
+  <div class="edges">
+    <div class="edge">
+      <span class="tag">the premise</span>
+      <h3>Immutability is load-bearing</h3>
+      <p><code>colMinMax</code> is memoised on <code>(scale, offset, width)</code> and the compute pass is skipped when none changed. That is only sound because <code>channelData</code> cannot change. Add streaming and the memoisation key is wrong, silently — it would serve a stale frame rather than crash.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">not a bug</span>
+      <h3>Nothing here is a defect in webgpu-waveform</h3>
+      <p>Conservative is the right call for a min/max audio display, and the source says so plainly in a comment. The finding is only that the property does not survive a change of statistic — which matters if you are porting.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">scale</span>
+      <h3>The ratio shrinks the error, not the asymmetry</h3>
+      <p>At 1:64 the mean error falls to ~1% and the envelope error to zero. Tempting to call that good enough — but one is converging to exact and the other is converging to small-and-still-two-sided. Those are different destinations.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">alternative</span>
+      <h3>You could also just widen the budget</h3>
+      <p>Scanning raw samples is always exact. Raising <code>COLUMN_LOOP_BUDGET</code> trades loop length for exactness with no new data structure — viable if your zoom range is bounded, useless if it is not.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">nuance</span>
+      <h3>Partial edges need level 0</h3>
+      <p>An exact query bottoms out at individual samples, so the tree's leaves must be the raw data. <code>webgpu-waveform</code> deliberately omits level 0 from the pyramid — the fine path reads <code>channelData</code> directly — which an exact query could still do, but the indexing stops being uniform.</p>
+    </div>
+    <div class="edge">
+      <span class="tag">testability</span>
+      <h3>All of this is CPU-testable</h3>
+      <p>Every figure here was computed in plain JS against a closed-form signal. The aggregation layer of either library can be tested to machine precision without a GPU, a canvas, or a browser. Neither library does.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Sources: mrkev/webgpu-waveform@3a0b5a5 — packages/webgpu-waveform/src/waveformShader.ts, GPUWaveformRenderer.ts.<br>
+  All error figures are computed at page load from signal(i) = 0.55·sin(0.11i) + 0.25·sin(0.37i+1) + 0.12·sin(1.7i+0.3), swept over 400 column offsets.
+</footer>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+var NS="http://www.w3.org/2000/svg";
+function el(n,a,kids){
+  var e=document.createElementNS(NS,n);
+  if(a) for(var k in a){ if(a[k]!=null) e.setAttribute(k,a[k]); }
+  if(kids){ (kids.length!==undefined?kids:[kids]).forEach(function(c){ if(c) e.appendChild(c); }); }
+  return e;
+}
+function svg(w,h){
+  var s=el("svg",{viewBox:"0 0 "+w+" "+h,"aria-hidden":"true"});
+  s.setAttribute("preserveAspectRatio","xMidYMid meet");
+  return s;
+}
+function mount(id,s){ var n=document.getElementById(id); if(n) n.appendChild(s); return n; }
+function g(cls){ return el("g",{"class":cls||null}); }
+function line(x1,y1,x2,y2,cls){ return el("line",{x1:r(x1),y1:r(y1),x2:r(x2),y2:r(y2),"class":cls}); }
+function poly(pts,cls){ return el("polyline",{points:pts.map(function(p){return r(p[0])+","+r(p[1]);}).join(" "),"class":cls}); }
+function pgon(pts,cls,ex){ var a={points:pts.map(function(p){return r(p[0])+","+r(p[1]);}).join(" "),"class":cls}; if(ex) for(var k in ex) a[k]=ex[k]; return el("polygon",a); }
+function circ(x,y,rr,cls){ return el("circle",{cx:r(x),cy:r(y),r:rr,"class":cls}); }
+function rect(x,y,w,h,cls,ex){ var a={x:r(x),y:r(y),width:r(Math.max(w,0)),height:r(Math.max(h,0)),"class":cls}; if(ex) for(var k in ex) a[k]=ex[k]; return el("rect",a); }
+function r(v){ return Math.round(v*100)/100; }
+function txt(x,y,s,cls,anchor){
+  var t=el("text",{x:r(x),y:r(y),"class":"lbl "+(cls||""),"text-anchor":anchor||"start"});
+  t.textContent=s; return t;
+}
+function txtS(x,y,s,cls,a){ var t=txt(x,y,s,cls,a); t.setAttribute("class","lbl sm "+(cls||"")); return t; }
+function txtB(x,y,s,cls,a){ var t=txt(x,y,s,cls,a); t.setAttribute("class","lbl bg "+(cls||"")); return t; }
+function dimArrow(parent,x1,y1,x2,y2,cls){
+  var gg=g(cls), dx=x2-x1, dy=y2-y1, L=Math.hypot(dx,dy); if(L<.001) return;
+  var ux=dx/L, uy=dy/L, h=5, w=2.4;
+  gg.appendChild(line(x1+ux*h,y1+uy*h,x2-ux*h,y2-uy*h,"thin"));
+  gg.appendChild(pgon([[x1,y1],[x1+ux*h-uy*w,y1+uy*h+ux*w],[x1+ux*h+uy*w,y1+uy*h-ux*w]],"vh"));
+  gg.appendChild(pgon([[x2,y2],[x2-ux*h-uy*w,y2-uy*h+ux*w],[x2-ux*h+uy*w,y2-uy*h-ux*w]],"vh"));
+  parent.appendChild(gg);
+}
+
+/* ===== the signal and the two queries ===== */
+function sig(i){ return 0.55*Math.sin(i*0.11) + 0.25*Math.sin(i*0.37+1) + 0.12*Math.sin(i*1.7+0.3); }
+function stats(a,b){
+  var n=b-a, s=0, s2=0, mn=Infinity, mx=-Infinity;
+  for(var i=a;i<b;i++){ var v=sig(i); s+=v; s2+=v*v; if(v<mn)mn=v; if(v>mx)mx=v; }
+  var m=s/n;
+  return {mean:m, sdev:Math.sqrt(Math.max(0,s2/n-m*m)), min:mn, max:mx, n:n};
+}
+var SPP=40, BS=16;
+function binsFor(s0,spp,bs){
+  var s1=s0+spp, b0=Math.floor(s0/bs), b1=Math.floor((s1-1)/bs);
+  return {b0:b0, b1:b1, lo:b0*bs, hi:(b1+1)*bs, s0:s0, s1:s1};
+}
+
+/* ============ PLATE 01 ============ */
+(function(){
+  var W=560,H=250,s=svg(W,H);
+  var ox=20, pw=W-ox-20, NS_=64;
+  function X(i){ return ox+pw*i/NS_; }
+  var rows=[{bs:4,y:60,lab:"level 1   bin 4"},{bs:16,y:120,lab:"level 2   bin 16"},{bs:64,y:180,lab:"level 3   bin 64"}];
+  var CLS=["c-blue","c-teal","c-plum"];
+
+  // raw strip
+  var rg=g("c-ink3");
+  for(var i=0;i<NS_;i++){ rg.appendChild(rect(X(i),24,X(1)-X(0)-0.6,14,"fill",{opacity:0.18})); }
+  s.appendChild(rg);
+  s.appendChild(txtS(ox,18,"raw samples","c-ink3"));
+
+  rows.forEach(function(row,ri){
+    var gg=g(CLS[ri]);
+    var nb=NS_/row.bs;
+    for(var b=0;b<nb;b++){
+      var x0=X(b*row.bs), x1=X((b+1)*row.bs);
+      gg.appendChild(rect(x0,row.y,x1-x0-1.5,26,"fill",{opacity:0.22}));
+      gg.appendChild(rect(x0,row.y,x1-x0-1.5,26,"thin"));
+      if(x1-x0>26) gg.appendChild(txtS((x0+x1)/2-1,row.y+17,String(b),CLS[ri],"middle"));
+    }
+    s.appendChild(gg);
+    s.appendChild(txtS(ox,row.y-6,row.lab,"c-ink3"));
+    // alignment ticks
+    var tg=g("c-ink3");
+    for(var b2=0;b2<=nb;b2++){ tg.appendChild(line(X(b2*row.bs),row.y-4,X(b2*row.bs),row.y,"thin")); }
+    s.appendChild(tg);
+  });
+  s.appendChild(txtS(W-20,H-8,"bin edges never move","c-ink","end"));
+  mount("f1",s);
+})();
+
+/* ============ PLATE 02 ============ */
+(function(){
+  var sl=document.getElementById("off2"), ro=document.getElementById("ro2");
+  if(!sl) return;
+  var W=560,H=250,s=svg(W,H); mount("f2",s);
+  var dyn=g(); s.appendChild(dyn);
+  var ox=26, pw=W-ox-26, VIEW=96;
+  function X(i){ return ox+pw*i/VIEW; }
+
+  // static bin grid
+  var bg=g("c-amber");
+  for(var b=0;b<VIEW/BS;b++){
+    bg.appendChild(rect(X(b*BS),60,X(BS)-X(0)-1.5,30,"thin"));
+    bg.appendChild(txtS(X(b*BS+BS/2),79,"bin "+b,"c-amber","middle"));
+  }
+  s.appendChild(bg);
+  s.appendChild(txtS(ox,52,"pyramid bins (aligned, fixed)","c-ink3"));
+  s.appendChild(txtS(ox,116,"pixel column (slides with offset)","c-ink3"));
+  s.appendChild(txtS(ox,182,"what the loop actually reads","c-ink3"));
+
+  function render(){
+    var s0=+sl.value, q=binsFor(s0,SPP,BS);
+    while(dyn.firstChild) dyn.removeChild(dyn.firstChild);
+
+    // column
+    var cg=g("c-teal");
+    cg.appendChild(rect(X(q.s0),124,X(q.s1)-X(q.s0),28,"fill",{opacity:0.28}));
+    cg.appendChild(rect(X(q.s0),124,X(q.s1)-X(q.s0),28,"thin"));
+    dyn.appendChild(cg);
+    dyn.appendChild(txtS((X(q.s0)+X(q.s1))/2,142,"["+q.s0+", "+q.s1+")","c-teal","middle"));
+
+    // covered
+    var vg=g("c-amber");
+    vg.appendChild(rect(X(q.lo),190,X(q.hi)-X(q.lo),28,"fill",{opacity:0.22}));
+    vg.appendChild(rect(X(q.lo),190,X(q.hi)-X(q.lo),28,"thin"));
+    dyn.appendChild(vg);
+    dyn.appendChild(txtS((X(q.lo)+X(q.hi))/2,208,"["+q.lo+", "+q.hi+")  =  bins "+q.b0+"…"+q.b1,"c-amber","middle"));
+
+    // overhangs
+    var og=g("c-plum");
+    if(q.s0>q.lo){ og.appendChild(rect(X(q.lo),190,X(q.s0)-X(q.lo),28,"fill",{opacity:0.5})); }
+    if(q.hi>q.s1){ og.appendChild(rect(X(q.s1),190,X(q.hi)-X(q.s1),28,"fill",{opacity:0.5})); }
+    dyn.appendChild(og);
+
+    // connector lines
+    var lg=g("c-ink3");
+    lg.appendChild(line(X(q.s0),152,X(q.s0),190,"dot3"));
+    lg.appendChild(line(X(q.s1),152,X(q.s1),190,"dot3"));
+    dyn.appendChild(lg);
+
+    var oL=q.s0-q.lo, oR=q.hi-q.s1;
+    ro.innerHTML="s0 <b>"+String(s0).padStart(2,"0")+"</b> &nbsp;<em>·</em>&nbsp; bins <b>"+q.b0+"…"+q.b1+
+      "</b> &nbsp;<em>·</em>&nbsp; overhang <b>"+String(oL).padStart(2,"0")+"</b>+<b>"+String(oR).padStart(2,"0")+
+      "</b> = <b>"+String(oL+oR).padStart(2,"0")+"</b>";
+  }
+  sl.addEventListener("input",render); render();
+})();
+
+/* ============ PLATE 03 ============ */
+(function(){
+  var W=560,H=250,s=svg(W,H);
+  var s0=9, q=binsFor(s0,SPP,BS);
+  var T=stats(q.s0,q.s1), C=stats(q.lo,q.hi);
+  var ox=40, pw=W-ox-110, oy=24, oh=180;
+  function X(i){ return ox+pw*(i-q.lo)/(q.hi-q.lo); }
+  function Y(v){ return oy+oh*(1-(v+1.1)/2.2); }
+
+  // overhang shading
+  var og=g("c-plum");
+  og.appendChild(rect(X(q.lo),oy,X(q.s0)-X(q.lo),oh,"fill",{opacity:0.14}));
+  og.appendChild(rect(X(q.s1),oy,X(q.hi)-X(q.s1),oh,"fill",{opacity:0.14}));
+  s.appendChild(og);
+
+  // samples
+  var pts=[];
+  for(var i=q.lo;i<q.hi;i++) pts.push([X(i),Y(sig(i))]);
+  var sg=g("c-ink3"); sg.appendChild(poly(pts,"thin")); s.appendChild(sg);
+  for(var j=q.lo;j<q.hi;j++){
+    var inCol=(j>=q.s0&&j<q.s1);
+    var gg=g(inCol?"c-ink":"c-plum");
+    gg.appendChild(circ(X(j),Y(sig(j)),inCol?2.4:2.8,"pt"));
+    s.appendChild(gg);
+  }
+
+  // envelopes
+  function band(v0,v1,cls,lab,xo){
+    var gg=g(cls);
+    gg.appendChild(line(X(q.lo)+xo,Y(v1),X(q.hi)+xo,Y(v1),"dash"));
+    gg.appendChild(line(X(q.lo)+xo,Y(v0),X(q.hi)+xo,Y(v0),"dash"));
+    s.appendChild(gg);
+    s.appendChild(txtS(X(q.hi)+8,Y(v1)+3.5,lab+" max","+"+cls,"start"));
+    s.appendChild(txtS(X(q.hi)+8,Y(v0)+3.5,lab+" min",cls,"start"));
+  }
+  band(T.min,T.max,"c-teal","true",0);
+  band(C.min,C.max,"c-amber","read",0);
+
+  // the grow arrows
+  var ag=g("c-amber");
+  dimArrow(ag,X(q.hi)-16,Y(T.max),X(q.hi)-16,Y(C.max),"c-amber");
+  dimArrow(ag,X(q.hi)-16,Y(T.min),X(q.hi)-16,Y(C.min),"c-amber");
+  s.appendChild(ag);
+
+  s.appendChild(txtS(ox,H-12,"true  ["+T.min.toFixed(3)+", "+T.max.toFixed(3)+"]      read  ["+C.min.toFixed(3)+", "+C.max.toFixed(3)+"]   ⊇   contains","c-ink"));
+  mount("f3",s);
+})();
+
+/* ============ PLATE 04 ============ */
+(function(){
+  var W=700,H=352,s=svg(W,H);
+  var NOFF=400, ox=62, pw=W-ox-40;
+  var envErr=[], meanErr=[];
+  for(var s0=0;s0<NOFF;s0++){
+    var q=binsFor(s0,SPP,BS), T=stats(q.s0,q.s1), C=stats(q.lo,q.hi);
+    envErr.push(C.max-T.max); meanErr.push(C.mean-T.mean);
+  }
+  var lim=0; envErr.concat(meanErr).forEach(function(v){ lim=Math.max(lim,Math.abs(v)); });
+  lim*=1.12;
+
+  function panel(oy,ph,data,cls,title,sub){
+    function X(i){ return ox+pw*i/(NOFF-1); }
+    function Y(v){ return oy+ph/2 - (ph/2)*(v/lim); }
+    var ax=g("c-ink3");
+    ax.appendChild(line(ox,oy,ox,oy+ph,"thin"));
+    s.appendChild(ax);
+    // zero line — the whole point
+    var zg=g("c-ink");
+    zg.appendChild(line(ox,Y(0),ox+pw,Y(0),"thin"));
+    s.appendChild(zg);
+    s.appendChild(txtS(ox-6,Y(0)+3.5,"0","c-ink","end"));
+    s.appendChild(txtS(ox-6,oy+8,"+"+lim.toFixed(2),"c-ink3","end"));
+    s.appendChild(txtS(ox-6,oy+ph,"−"+lim.toFixed(2),"c-ink3","end"));
+    var pts=data.map(function(v,i){ return [X(i),Y(v)]; });
+    var gg=g(cls);
+    gg.appendChild(rect(ox,Math.min(Y(0),Y(lim)),pw,Math.abs(Y(0)-Y(lim)),"fill",{opacity:0.05}));
+    gg.appendChild(poly(pts,"thin"));
+    s.appendChild(gg);
+    s.appendChild(txtS(ox+4,oy-8,title,"c-ink"));
+    s.appendChild(txtS(W-40,oy-8,sub,cls,"end"));
+  }
+  panel(44,104,envErr,"c-teal","envelope error   max_read − max_true","never below zero");
+  panel(216,104,meanErr,"c-plum","mean error   mean_read − mean_true","crosses on every bin");
+  s.appendChild(txtS(ox,H-8,"column offset  →  400 positions","c-ink3"));
+  mount("f4",s);
+})();
+
+/* ============ PLATE 05 ============ */
+(function(){
+  var W=560,H=250,s=svg(W,H);
+  var ox=54, pw=W-ox-30, oy=34, oh=160, NP=64;
+  var tm=[], cm=[];
+  for(var k=0;k<NP;k++){
+    var q=binsFor(k,SPP,BS);
+    tm.push(stats(q.s0,q.s1).mean); cm.push(stats(q.lo,q.hi).mean);
+  }
+  var lo=Infinity,hi=-Infinity;
+  tm.concat(cm).forEach(function(v){ lo=Math.min(lo,v); hi=Math.max(hi,v); });
+  var pad=(hi-lo)*0.18; lo-=pad; hi+=pad;
+  function X(i){ return ox+pw*i/(NP-1); }
+  function Y(v){ return oy+oh*(1-(v-lo)/(hi-lo)); }
+
+  var ax=g("c-ink3");
+  ax.appendChild(line(ox,oy,ox,oy+oh,"thin"));
+  ax.appendChild(line(ox,oy+oh,ox+pw,oy+oh,"thin"));
+  s.appendChild(ax);
+  // bin boundaries
+  var bg=g("c-ink3");
+  for(var b=0;b<=NP;b+=BS){ bg.appendChild(line(X(b),oy,X(b),oy+oh,"dot3")); }
+  s.appendChild(bg);
+
+  var tg=g("c-teal"); tg.appendChild(poly(tm.map(function(v,i){return [X(i),Y(v)];}),"v")); s.appendChild(tg);
+  var cg=g("c-plum"); cg.appendChild(poly(cm.map(function(v,i){return [X(i),Y(v)];}),"v")); s.appendChild(cg);
+
+  s.appendChild(txtS(ox+4,oy-8,"true mean — smooth","c-teal"));
+  s.appendChild(txtS(W-30,oy-8,"pyramid mean — staircase","c-plum","end"));
+  s.appendChild(txtS(ox,oy+oh+18,"pan offset (one sample per step)  ·  dotted = bin boundaries","c-ink3"));
+  s.appendChild(txtS(W-30,oy+oh+18,"period = bin size","c-ink","end"));
+  mount("f5",s);
+})();
+
+/* ============ PLATE 06 ============ */
+(function(){
+  var W=560,H=250,s=svg(W,H);
+  var q=binsFor(9,SPP,BS);
+  var ox=40, pw=W-ox-120, oy=26, oh=168;
+  function X(i){ return ox+pw*(i-q.lo)/(q.hi-q.lo); }
+  // inject an outlier into the overhang
+  var OUT=q.hi-3, OUTV=1.0;
+  function v(i){ return i===OUT ? OUTV : sig(i); }
+  function st(a,b){ var n=b-a,s1=0,s2=0,mn=Infinity,mx=-Infinity;
+    for(var i=a;i<b;i++){ var x=v(i); s1+=x; s2+=x*x; mn=Math.min(mn,x); mx=Math.max(mx,x); }
+    var m=s1/n; return {mean:m,sdev:Math.sqrt(Math.max(0,s2/n-m*m)),min:mn,max:mx}; }
+  var T=st(q.s0,q.s1), C=st(q.lo,q.hi);
+  function Y(x){ return oy+oh*(1-(x+1.2)/2.4); }
+
+  var og=g("c-plum");
+  og.appendChild(rect(X(q.s1),oy,X(q.hi)-X(q.s1),oh,"fill",{opacity:0.14}));
+  og.appendChild(rect(X(q.lo),oy,X(q.s0)-X(q.lo),oh,"fill",{opacity:0.14}));
+  s.appendChild(og);
+
+  var pts=[]; for(var i=q.lo;i<q.hi;i++) pts.push([X(i),Y(v(i))]);
+  var sg=g("c-ink3"); sg.appendChild(poly(pts,"thin")); s.appendChild(sg);
+  for(var j=q.lo;j<q.hi;j++){
+    var gg=g(j===OUT?"c-plum":(j>=q.s0&&j<q.s1?"c-ink":"c-ink3"));
+    gg.appendChild(circ(X(j),Y(v(j)),j===OUT?4.2:2.2,"pt")); s.appendChild(gg);
+  }
+  s.appendChild(txtS(X(OUT),Y(OUTV)-10,"outlier, outside the column","c-plum","middle"));
+
+  // bars comparing
+  var bx=X(q.hi)+18, bw=64;
+  [["max",T.max,C.max,"c-teal"],["σ",T.sdev,C.sdev,"c-plum"]].forEach(function(row,ri){
+    var by=oy+18+ri*70;
+    s.appendChild(txtS(bx,by-6,row[0],"c-ink"));
+    var mxv=Math.max(row[1],row[2])*1.15||1;
+    [[row[1],"true",0],[row[2],"read",18]].forEach(function(d){
+      var gg=g(d[2]?row[3]:"c-ink3");
+      gg.appendChild(rect(bx,by+d[2],bw*d[0]/mxv,13,"fill",{opacity:d[2]?0.55:0.3}));
+      s.appendChild(gg);
+      s.appendChild(txtS(bx+bw*d[0]/mxv+5,by+d[2]+10,d[0].toFixed(3),"c-ink3"));
+      s.appendChild(txtS(bx-4,by+d[2]+10,d[1],"c-ink3","end"));
+    });
+  });
+  mount("f6",s);
+})();
+
+/* ============ PLATE 07 ============ */
+(function(){
+  var W=700,H=250,s=svg(W,H);
+  var N=32, LO=5, HI=27;
+  // decompose
+  var nodes=[], l=LO+N, rr=HI+N, lev=0;
+  while(l<rr){
+    if(l&1){ nodes.push({idx:l,lev:lev}); l++; }
+    if(rr&1){ rr--; nodes.push({idx:rr,lev:lev}); }
+    l>>=1; rr>>=1; lev++;
+  }
+  var ox=34, pw=W-ox-34;
+  function X(i){ return ox+pw*i/N; }
+  var baseY=200, levH=30;
+
+  // leaf axis
+  var ag=g("c-ink3");
+  for(var i=0;i<=N;i++){ ag.appendChild(line(X(i),baseY,X(i),baseY+5,"thin")); }
+  ag.appendChild(line(ox,baseY,ox+pw,baseY,"thin"));
+  s.appendChild(ag);
+  s.appendChild(txtS(X(LO),baseY+20,"lo = "+LO,"c-teal","middle"));
+  s.appendChild(txtS(X(HI),baseY+20,"hi = "+HI,"c-teal","middle"));
+
+  // requested range
+  var qg=g("c-teal");
+  qg.appendChild(rect(X(LO),baseY-6,X(HI)-X(LO),6,"fill",{opacity:0.4}));
+  s.appendChild(qg);
+
+  // nodes
+  var covered=0;
+  nodes.forEach(function(nd){
+    var size=1<<nd.lev, first=(nd.idx-(N>>nd.lev))*size;
+    covered+=size;
+    var y=baseY-18-nd.lev*levH;
+    var gg=g("c-amber");
+    gg.appendChild(rect(X(first),y,X(first+size)-X(first)-1.5,20,"fill",{opacity:0.26}));
+    gg.appendChild(rect(X(first),y,X(first+size)-X(first)-1.5,20,"thin"));
+    s.appendChild(gg);
+    if(X(size)-X(0)>24) s.appendChild(txtS(X(first+size/2),y+14,String(size),"c-amber","middle"));
+    var dg=g("c-ink3");
+    dg.appendChild(line(X(first),y+20,X(first),baseY-6,"dot3"));
+    dg.appendChild(line(X(first+size),y+20,X(first+size),baseY-6,"dot3"));
+    s.appendChild(dg);
+  });
+
+  s.appendChild(txtS(ox,26,"nodes selected, by level — widths double toward the middle","c-ink3"));
+  s.appendChild(txtS(W-34,26,nodes.length+" nodes  ·  covered "+covered+" = "+(HI-LO)+" requested","c-ink","end"));
+  s.appendChild(txtS(W-34,H-8,covered===(HI-LO)?"exact: no overhang":"MISMATCH","c-teal","end"));
+  mount("f7",s);
+})();
+
+/* ============ PLATE 08 ============ */
+(function(){
+  var t=document.getElementById("t8");
+  if(t){
+    var rows=[
+      ["shape","bounded scan over one level","climb the tree from both edges"],
+      ["nodes touched","up to COLUMN_LOOP_BUDGET (64)","~2·log₂N  (≈40 at 1M)"],
+      ["levels touched","1","up to log₂N"],
+      ["edges","bin-aligned, over-covers","exact, bottoms out at level 0"],
+      ["error","one-sided for min/max, two-sided for mean","none"],
+      ["merge op","min / max","Chan parallel (n, mean, M2)"],
+      ["needs level 0 stored","no","yes"],
+      ["implemented in webgpu-waveform","yes","no"]
+    ];
+    t.innerHTML="<tr><th></th><th>bounded scan (webgpu-waveform)</th><th>segment-tree query</th></tr>"+
+      rows.map(function(rw,i){
+        var cls=(i===4)?" class='bad'":"";
+        return "<tr><td class='k'>"+rw[0]+"</td><td class='sep'"+cls+">"+rw[1]+"</td><td class='sep"+
+               (i===4?" good":"")+"'>"+rw[2]+"</td></tr>";
+      }).join("");
+  }
+
+  var W=700,H=200,s=svg(W,H);
+  var N=32, A=20, B=28;
+  var ox=34, pw=W-ox-34;
+  function X(i){ return ox+pw*i/N; }
+  var baseY=150, levH=30, LEVELS=5;
+  for(var lev=0;lev<LEVELS;lev++){
+    var size=1<<lev, nb=N/size, y=baseY-lev*levH;
+    var da=Math.floor(A/size), db=Math.floor((B-1)/size);
+    for(var b=0;b<nb;b++){
+      var dirty=(b>=da&&b<=db);
+      var gg=g(dirty?"c-plum":"c-ink3");
+      gg.appendChild(rect(X(b*size),y,X(size)-X(0)-1.5,20,"fill",{opacity:dirty?0.45:0.10}));
+      s.appendChild(gg);
+    }
+    s.appendChild(txtS(ox-6,y+14,"L"+lev,"c-ink3","end"));
+  }
+  var ng=g("c-plum");
+  ng.appendChild(rect(X(A),baseY+26,X(B)-X(A),8,"fill",{opacity:0.6}));
+  s.appendChild(ng);
+  s.appendChild(txtS(X((A+B)/2),baseY+46,"appended samples ["+A+", "+B+")","c-plum","middle"));
+  s.appendChild(txtS(ox,20,"dirty range at each level — contiguous, and it widens upward","c-ink3"));
+  mount("f8",s);
+})();
+
+})();
+</script>
